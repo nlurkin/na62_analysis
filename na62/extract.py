@@ -51,3 +51,10 @@ def all_clusters(df: pd.DataFrame) -> pd.DataFrame:
     c2 = cluster(df, 2)
 
     return pd.concat([c1.loc[c1["exists"]], c2.loc[c2["exists"]]])
+
+
+def get_beam(df: pd.DataFrame) -> pd.DataFrame:
+    beam = df.filter(like="beam_")
+    beam = beam.rename(columns={_: _.replace("beam_", "")
+                       for _ in beam.columns})
+    return beam
