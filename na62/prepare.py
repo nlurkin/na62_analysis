@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import uproot
 
-from .hlf import compute_eop
+from .hlf import track_eop
 
 
 def import_root_file(filename: str) -> pd.DataFrame:
@@ -15,6 +15,8 @@ def import_root_file(filename: str) -> pd.DataFrame:
                        "track2_momentum_mag": np.float64, "track3_momentum_mag": np.float64})
     clean_clusters(data)
     clean_tracks(data)
+
+    compute_derived(data)
     return data
 
 
@@ -42,3 +44,7 @@ def compute_derived(df: pd.DataFrame) -> None:
     compute_eop(df, 1)
     compute_eop(df, 2)
     compute_eop(df, 3)
+
+
+def compute_eop(df: pd.DataFrame, trackid: int) -> None:
+    df[f"track{trackid}_eop"] = track_eop(df, trackid)
