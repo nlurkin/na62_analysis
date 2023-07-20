@@ -10,6 +10,9 @@ def import_root_file(filename: str) -> pd.DataFrame:
     x = fd.get("export_flat/NA62Flat")
     data = x.arrays(x.keys(), library="pd", entry_stop=1000000).rename(
         columns={"beam_momentum": "beam_momentum_mag"})
+    data = data.replace([np.inf, -np.inf], np.nan)
+    data = data.astype({"beam_momentum_mag": np.float64, "track1_momentum_mag": np.float64,
+                       "track2_momentum_mag": np.float64, "track3_momentum_mag": np.float64})
     clean_clusters(data)
     clean_tracks(data)
     return data
