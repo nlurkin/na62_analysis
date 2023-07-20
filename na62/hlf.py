@@ -34,7 +34,7 @@ def sum_three_momenta(momenta: List[pd.DataFrame]) -> pd.DataFrame:
     x = p["direction_x"]*p["momentum_mag"]
     y = p["direction_y"]*p["momentum_mag"]
     z = p["direction_z"]*p["momentum_mag"]
-    for p in momenta:
+    for p in momenta[1:]:
         x += p["direction_x"]*p["momentum_mag"]
         y += p["direction_y"]*p["momentum_mag"]
         z += p["direction_z"]*p["momentum_mag"]
