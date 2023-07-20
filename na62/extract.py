@@ -6,13 +6,13 @@ import pandas as pd
 from .constants import lkr_position
 
 
-def list_variables(df: pd.DataFrame) -> List[str]:
-    return df.columns
+def list_variables(df: pd.DataFrame) -> np.array:
+    return df.columns.values
 
 
 def print_event(df: pd.DataFrame, eventid: int) -> None:
     with pd.option_context('display.max_rows', None):
-        print(df[eventid])
+        print(df.loc[eventid])
 
 
 def track(df: pd.DataFrame, trackID: int) -> pd.DataFrame:
