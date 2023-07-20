@@ -16,17 +16,17 @@ def total_momentum(df: pd.DataFrame) -> pd.Series:
     t3 = track(df, 3).fillna(0)
     c1 = photon_momentum(df, 1).fillna(0)
     c2 = photon_momentum(df, 2).fillna(0)
-    return sum_momenta([t1, t2, t3, c1, c2])
+    return sum_three_momenta([t1, t2, t3, c1, c2])
 
 
 def total_track_momentum(df: pd.DataFrame) -> pd.Series:
     t1 = track(df, 1).fillna(0)
     t2 = track(df, 2).fillna(0)
     t3 = track(df, 3).fillna(0)
-    return sum_momenta([t1, t2, t3])
+    return sum_three_momenta([t1, t2, t3])
 
 
-def sum_momenta(momenta: List[pd.DataFrame]) -> pd.Series:
+def sum_three_momenta(momenta: List[pd.DataFrame]) -> pd.Series:
     if len(momenta) == 0:
         return pd.Series()
 
