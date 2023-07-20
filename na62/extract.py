@@ -36,3 +36,18 @@ def photon_momentum(df: pd.DataFrame, clusterID: int) -> pd.DataFrame:
     c1["direction_z"] = z/mag
     c1["momentum_mag"] = c1["lkr_energy"]
     return c1
+
+
+def all_tracks(df: pd.DataFrame) -> pd.DataFrame:
+    t1 = track(df, 1)
+    t2 = track(df, 2)
+    t3 = track(df, 3)
+
+    return pd.concat([t1.loc[t1["exists"]], t2.loc[t2["exists"]], t3.loc[t3["exists"]]])
+
+
+def all_clusters(df: pd.DataFrame) -> pd.DataFrame:
+    c1 = cluster(df, 1)
+    c2 = cluster(df, 2)
+
+    return pd.concat([c1.loc[c1["exists"]], c2.loc[c2["exists"]]])
