@@ -8,7 +8,8 @@ from .hlf import compute_eop
 def import_root_file(filename: str) -> pd.DataFrame:
     fd = uproot.open(filename)
     x = fd.get("export_flat/NA62Flat")
-    data = x.arrays(x.keys(), library="pd", entry_stop=1000000)
+    data = x.arrays(x.keys(), library="pd", entry_stop=1000000).rename(
+        columns={"beam_momentum": "beam_momentum_mag"})
     clean_clusters(data)
     clean_tracks(data)
     return data
