@@ -51,6 +51,6 @@ def lkr_energy(df: pd.DataFrame) -> pd.Series:
     return t1["lkr_energy"].fillna(0) + t2["lkr_energy"].fillna(0) + t3["lkr_energy"].fillna(0) + c1["lkr_energy"].fillna(0) + c2["lkr_energy"].fillna(0)
 
 
-def compute_eop(df: pd.DataFrame, trackid: int) -> None:
+def track_eop(df: pd.DataFrame, trackid: int) -> pd.Series:
     t = track(df, trackid)
-    df[f"track{trackid}_eop"] = t["lkr_energy"]/t["momentum_mag"]
+    return t["lkr_energy"]/t["momentum_mag"]
