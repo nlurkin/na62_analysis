@@ -7,3 +7,6 @@ kaon_charged_mass = 493.677
 pion_charged_mass = 139.57039
 pion_neutral_mass = 134.9768
 
+# Definitions
+rich_hypothesis_map = {"bckg": 0, "e": 1, "mu": 2, "pi": 3, "k": 4, "mult": 99}
+event_type_map = {1: "k3pi", 2: "ke3", 3: "kmu2", 4: "k2pi"}
