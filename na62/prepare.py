@@ -14,6 +14,11 @@ def import_root_file(filename: str) -> pd.DataFrame:
     return data
 
 
+def import_root_files(filenames: list[str]) -> pd.DataFrame:
+    data_list = [import_root_file(_) for _ in filenames]
+    return pd.concat(data_list)
+
+
 def clean_clusters(df: pd.DataFrame) -> None:
     for cname in ["cluster1", "cluster2"]:
         df.loc[~df[f"{cname}_exists"], [f"{cname}_lkr_energy",
