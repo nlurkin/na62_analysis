@@ -59,7 +59,7 @@ def missing_mass_sqr(beam: pd.DataFrame, tracks: List[pd.DataFrame]) -> pd.Serie
     beam_z = beam["direction_z"]*beam["momentum_mag"]
     beam_e = beam["energy"]
 
-    decay_momentum_sum = sum_four_momenta(tracks)
+    decay_momentum_sum = four_vector_sum(tracks)
     decay_x = decay_momentum_sum["direction_x"] * \
         decay_momentum_sum["momentum_mag"]
     decay_y = decay_momentum_sum["direction_y"] * \
@@ -77,15 +77,15 @@ def missing_mass(beam: pd.DataFrame, tracks: List[pd.DataFrame]) -> pd.Series:
     return np.sign(mm2)*np.sqrt(np.abs(mm2))
 
 
-def sum_four_momenta(momenta: List[pd.DataFrame]) -> pd.DataFrame:
-    if len(momenta) == 0:
+def four_vector_sum(vectors: List[pd.DataFrame]) -> pd.DataFrame:
+    if len(vectors) == 0:
         return pd.Series()
 
-    momentum_sum = three_vectors_sum(momenta)
+    momentum_sum = three_vectors_sum(vectors)
 
-    p = momenta[0]
+    p = vectors[0]
     momentum_sum["energy"] = p["energy"]
-    for p in momenta[1:]:
+    for p in vectors[1:]:
         momentum_sum["energy"] += p["energy"]
 
     return momentum_sum
