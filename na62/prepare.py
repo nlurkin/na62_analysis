@@ -1,14 +1,15 @@
 import numpy as np
 import pandas as pd
 import uproot
+from typing import Union
 
 from .hlf import track_eop
 
 
-def import_root_file(filename: str) -> pd.DataFrame:
+def import_root_file(filename: str, limit: Union[None, int] = None) -> pd.DataFrame:
     fd = uproot.open(filename)
     x = fd.get("export_flat/NA62Flat")
-    data = x.arrays(x.keys(), library="pd", entry_stop=1000000).rename(
+    data = x.arrays(x.keys(), library="pd", entry_stop=limit).rename(
         columns={"beam_momentum": "beam_momentum_mag", "beam_directionx": "beam_direction_x", "beam_directiony": "beam_direction_y", "beam_directionz": "beam_direction_z"})
     data = data.replace([np.inf, -np.inf], np.nan)
     type_dict = {"beam_momentum_mag": np.float64, "beam_direction_x": np.float64, "beam_direction_y": np.float64, "beam_direction_z": np.float64}
@@ -26,8 +27,15 @@ def import_root_file(filename: str) -> pd.DataFrame:
     return data
 
 
-def import_root_files(filenames: list[str]) -> pd.DataFrame:
-    data_list = [import_root_file(_) for _ in filenames]
+def import_root_files(filenames: list[str], total_limit: Union[None, int]= None, file_limit: Union[None, int] = None) -> pd.DataFrame:
+    data_list = []
+    for filename in filenames:
+        curr_limit = min(file_limit, total_limit) if file_limit and total_limit else (file_limit or total_limit)
+        data_list.append(import_root_file(filename, curr_limit))
+        if total_limit:
+            total_limit -= len(data_list[-1])
+            if total_limit <= 0:
+                break
     return pd.concat(data_list)
 
 
