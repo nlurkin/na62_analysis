@@ -47,10 +47,7 @@ def three_vectors_sum(vectors: List[pd.DataFrame]) -> pd.DataFrame:
 
 
 def three_vector_mag(vector: pd.DataFrame) -> pd.Series:
-    x = vector["direction_x"]*vector["momentum_mag"]
-    y = vector["direction_y"]*vector["momentum_mag"]
-    z = vector["direction_z"]*vector["momentum_mag"]
-    return np.sqrt(x**2 + y**2 + z**2)
+    return vector["momentum_mag"]
 
 
 def missing_mass_sqr(beam: pd.DataFrame, tracks: List[pd.DataFrame]) -> pd.Series:
