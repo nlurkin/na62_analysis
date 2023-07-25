@@ -16,25 +16,25 @@ def total_momentum(df: pd.DataFrame) -> pd.Series:
     t3 = track(df, 3).fillna(0)
     c1 = photon_momentum(df, 1).fillna(0)
     c2 = photon_momentum(df, 2).fillna(0)
-    return three_vector_mag(sum_three_momenta([t1, t2, t3, c1, c2]))
+    return three_vector_mag(three_vectors_sum([t1, t2, t3, c1, c2]))
 
 
 def total_track_momentum(df: pd.DataFrame) -> pd.Series:
     t1 = track(df, 1).fillna(0)
     t2 = track(df, 2).fillna(0)
     t3 = track(df, 3).fillna(0)
-    return three_vector_mag(sum_three_momenta([t1, t2, t3]))
+    return three_vector_mag(three_vectors_sum([t1, t2, t3]))
 
 
-def sum_three_momenta(momenta: List[pd.DataFrame]) -> pd.DataFrame:
-    if len(momenta) == 0:
+def three_vectors_sum(vectors: List[pd.DataFrame]) -> pd.DataFrame:
+    if len(vectors) == 0:
         return pd.Series()
 
-    p = momenta[0]
+    p = vectors[0]
     x = p["direction_x"]*p["momentum_mag"]
     y = p["direction_y"]*p["momentum_mag"]
     z = p["direction_z"]*p["momentum_mag"]
-    for p in momenta[1:]:
+    for p in vectors[1:]:
         x += p["direction_x"]*p["momentum_mag"]
         y += p["direction_y"]*p["momentum_mag"]
         z += p["direction_z"]*p["momentum_mag"]
@@ -81,7 +81,7 @@ def sum_four_momenta(momenta: List[pd.DataFrame]) -> pd.DataFrame:
     if len(momenta) == 0:
         return pd.Series()
 
-    momentum_sum = sum_three_momenta(momenta)
+    momentum_sum = three_vectors_sum(momenta)
 
     p = momenta[0]
     momentum_sum["energy"] = p["energy"]
