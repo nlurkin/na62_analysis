@@ -3,10 +3,16 @@ import numpy as np
 import pandas as pd
 from .. import hlf
 
+def get_unit_magnitude(vector):
+    ''' Returns the magnitude of of the direction vector'''
+    return np.sqrt(vector["direction_x"]**2 + vector["direction_y"]**2 + vector["direction_z"]**2)
+
 class Test_ThreeVector:
+    # Functions being tested
     sum_function = hlf.three_vectors_sum
     mag_function = hlf.three_vector_mag
 
+    # Functions to generate some input randomly
     @staticmethod
     def generate_unit_vector(nvectors: int) -> pd.DataFrame:
         x = np.random.uniform(size=nvectors)
@@ -26,6 +32,7 @@ class Test_ThreeVector:
     def generate_vector():
         return Test_ThreeVector.generate_unit_vector(100).join(Test_ThreeVector.generate_momentum(100))
 
+    # Fixtures generating known vectors
     @pytest.fixture
     def vector1(self):
         return pd.DataFrame({
@@ -50,30 +57,30 @@ class Test_ThreeVector:
             "direction_z": [0.57459384, 0.63784288, 0.03276302, 0.58774132, 0.71928027, 0.75975247, 0.52911455, 0.2704923 , 0.38765807, 0.6034273],
             "momentum_mag": [ 55733.71152199,  31955.95888169,  18957.22794326,  59592.03196925, 117784.35646802,  52734.29043842,  99537.85438574,  32116.17093987, 20473.60615187,  66986.42759534]})
 
-    @staticmethod
-    def get_unit_magnitude(vector):
-        return np.sqrt(vector["direction_x"]**2 + vector["direction_y"]**2 + vector["direction_z"]**2)
-
     def test_sum(self, vector1, vector2, vector_sum):
+        ''' Test the sum function. The value provided by the sum_function need to be very close from the known sum '''
         sum = Test_ThreeVector.sum_function([vector1, vector2])
         assert(np.isclose(sum, vector_sum).all().all())
 
     def test_sum_is_unit(self, vector1, vector2):
+        ''' Test the sum function. Make sure that the direction of the returned vector is unit '''
         sum = Test_ThreeVector.sum_function([vector1, vector2])
-        assert(np.isclose(Test_ThreeVector.get_unit_magnitude(sum), 1).all())
+        assert(np.isclose(get_unit_magnitude(sum), 1).all())
 
     def test_magnitude(self, vector1):
+        ''' Test the magnitude function. The value provided by the mag_function need to be very close from the known magnitude'''
         mag = Test_ThreeVector.mag_function(vector1)
         assert(np.isclose(mag, vector1["momentum_mag"]).all())
 
     def test_unit_direction(self, vector1):
-        mag = Test_ThreeVector.get_unit_magnitude(vector1)
+        ''' Test that the given direction vector is unit '''
+        mag = get_unit_magnitude(vector1)
         assert(np.isclose(mag, 1).all())
 
     def run_tests(self, sum_function, mag_function):
+        ''' Run the tests manually, comparing the results on randomly generated vectors against the library functions '''
         Test_ThreeVector.sum_function = sum_function
         Test_ThreeVector.mag_function = mag_function
-        Test_ThreeVector.auto_generate = True
 
         v1 = Test_ThreeVector.generate_vector()
         v2 = Test_ThreeVector.generate_vector()
