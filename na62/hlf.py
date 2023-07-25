@@ -49,29 +49,20 @@ def three_vectors_sum(vectors: List[pd.DataFrame]) -> pd.DataFrame:
 def three_vector_mag(vector: pd.DataFrame) -> pd.Series:
     return vector["momentum_mag"]
 
+def tracks_minus_beam(beam: pd.DataFrame, tracks: List[pd.DataFrame]) -> pd.Series:
+    neg_beam = beam.copy()
+    neg_beam["direction_x"] *= -1
+    neg_beam["direction_y"] *= -1
+    neg_beam["direction_z"] *= -1
+
+    return four_vector_sum(tracks + neg_beam)
 
 def missing_mass_sqr(beam: pd.DataFrame, tracks: List[pd.DataFrame]) -> pd.Series:
-    beam_x = beam["direction_x"]*beam["momentum_mag"]
-    beam_y = beam["direction_y"]*beam["momentum_mag"]
-    beam_z = beam["direction_z"]*beam["momentum_mag"]
-    beam_e = beam["energy"]
-
-    decay_momentum_sum = four_vector_sum(tracks)
-    decay_x = decay_momentum_sum["direction_x"] * \
-        decay_momentum_sum["momentum_mag"]
-    decay_y = decay_momentum_sum["direction_y"] * \
-        decay_momentum_sum["momentum_mag"]
-    decay_z = decay_momentum_sum["direction_z"] * \
-        decay_momentum_sum["momentum_mag"]
-    decay_e = decay_momentum_sum["energy"]
-
-    return (beam_e - decay_e)**2 - (beam_x - decay_x)**2 - (beam_y - decay_y)**2 - (beam_z - decay_z)**2
+    return four_vector_mag2(tracks_minus_beam(beam, tracks))
 
 
 def missing_mass(beam: pd.DataFrame, tracks: List[pd.DataFrame]) -> pd.Series:
-    mm2 = missing_mass_sqr(beam, tracks)
-
-    return np.sign(mm2)*np.sqrt(np.abs(mm2))
+    return four_vector_mag(tracks_minus_beam(beam, tracks))
 
 
 def four_vector_sum(vectors: List[pd.DataFrame]) -> pd.DataFrame:
@@ -87,6 +78,12 @@ def four_vector_sum(vectors: List[pd.DataFrame]) -> pd.DataFrame:
 
     return momentum_sum
 
+def four_vector_mag2(vector: pd.DataFrame) -> pd.DataFrame:
+    return vector["energy"]**2 - three_vector_mag(vector)**2
+
+def four_vector_mag(vector: pd.DataFrame) -> pd.DataFrame:
+    mag2 = four_vector_mag2(vector)
+    return np.sign(mag2)*np.sqrt(np.abs(mag2))
 
 def lkr_energy(df: pd.DataFrame) -> pd.Series:
     t1 = track(df, 1)
