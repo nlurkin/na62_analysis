@@ -12,8 +12,9 @@ def import_root_file(filename: str, limit: Union[None, int] = None) -> pd.DataFr
     data = x.arrays(x.keys(), library="pd", entry_stop=limit).rename(
         columns={"beam_momentum": "beam_momentum_mag", "beam_directionx": "beam_direction_x", "beam_directiony": "beam_direction_y", "beam_directionz": "beam_direction_z"})
     data = data.replace([np.inf, -np.inf], np.nan)
-    type_dict = {"beam_momentum_mag": np.float64, "beam_direction_x": np.float64, "beam_direction_y": np.float64, "beam_direction_z": np.float64}
-    for trackid in range(1,4):
+    type_dict = {"beam_momentum_mag": np.float64, "beam_direction_x": np.float64,
+                 "beam_direction_y": np.float64, "beam_direction_z": np.float64}
+    for trackid in range(1, 4):
         type_dict[f"track{trackid}_momentum_mag"] = np.float64
         type_dict[f"track{trackid}_direction_x"] = np.float64
         type_dict[f"track{trackid}_direction_y"] = np.float64
@@ -27,10 +28,11 @@ def import_root_file(filename: str, limit: Union[None, int] = None) -> pd.DataFr
     return data
 
 
-def import_root_files(filenames: list[str], total_limit: Union[None, int]= None, file_limit: Union[None, int] = None) -> pd.DataFrame:
+def import_root_files(filenames: list[str], total_limit: Union[None, int] = None, file_limit: Union[None, int] = None) -> pd.DataFrame:
     data_list = []
     for filename in filenames:
-        curr_limit = min(file_limit, total_limit) if file_limit and total_limit else (file_limit or total_limit)
+        curr_limit = min(file_limit, total_limit) if file_limit and total_limit else (
+            file_limit or total_limit)
         data_list.append(import_root_file(filename, curr_limit))
         if total_limit:
             total_limit -= len(data_list[-1])
