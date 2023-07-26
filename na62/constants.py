@@ -2,6 +2,8 @@
 lkr_position = 241093
 
 # Particle properties
+photon_mass = 0
+electron_mass = 0.511
 muon_mass = 105.7
 kaon_charged_mass = 493.677
 pion_charged_mass = 139.57039
