@@ -14,6 +14,7 @@ class Test_ThreeVector:
     # Functions being tested
     sum_function = hlf.three_vectors_sum
     mag_function = hlf.three_vector_mag
+    invert_function = hlf.three_vector_invert
 
     # Functions to generate some input randomly
     @staticmethod
@@ -80,10 +81,17 @@ class Test_ThreeVector:
         mag = get_unit_magnitude(vector1)
         assert (np.isclose(mag, 1).all())
 
-    def run_tests(self, sum_function, mag_function):
+    def test_invert(self, vector1):
+        ''' Test the inversion function. The value provided by the invert_function need to apply *-1 to all components of the vector'''
+        invert = vector1.copy()
+        invert[["direction_x", "direction_y", "direction_z"]] *= -1
+        assert ((Test_ThreeVector.invert_function(vector1) == invert).all().all())
+
+    def run_tests(self, *, sum_function, mag_function, invert_function):
         ''' Run the tests manually, comparing the results on randomly generated vectors against the library functions '''
         Test_ThreeVector.sum_function = sum_function
         Test_ThreeVector.mag_function = mag_function
+        Test_ThreeVector.invert_function = invert_function
 
         v1 = Test_ThreeVector.generate_vector()
         v2 = Test_ThreeVector.generate_vector()
@@ -108,6 +116,13 @@ class Test_ThreeVector:
             print("[ERROR] Sum function does not return a unit direction vector")
             failed = True
 
+        try:
+            self.test_invert(v1)
+        except AssertionError:
+            print(
+                "[ERROR] Invertion function does not return a vector whose coordinates are inverted")
+            failed = True
+
         if not failed:
             print("[INFO] All tests passed successfully")
 
@@ -117,6 +132,7 @@ class Test_FourVector:
     sum_function = hlf.four_vector_sum
     mag_function = hlf.four_vector_mag
     mag2_function = hlf.four_vector_mag2
+    invert_function = hlf.four_vector_invert
 
     # Functions to randomly generate some input
     @staticmethod
@@ -200,11 +216,18 @@ class Test_FourVector:
         assert (np.isclose(mag, np.sign(
             vector1["mass"])*vector1["mass"]**2).all())
 
-    def run_tests(self, sum_function, mag_function, mag2_function):
+    def test_invert(self, vector1):
+        ''' Test the inversion function. The value provided by the invert_function need to apply *-1 to all components of the vector'''
+        invert = vector1.copy()
+        invert[["direction_x", "direction_y", "direction_z", "energy"]] *= -1
+        assert ((Test_FourVector.invert_function(vector1) == invert).all().all())
+
+    def run_tests(self, *, sum_function, mag_function, mag2_function, invert_function):
         ''' Run the tests manually, comparing the results on randomly generated vectors against the library functions '''
         Test_FourVector.sum_function = sum_function
         Test_FourVector.mag2_function = mag2_function
         Test_FourVector.mag_function = mag_function
+        Test_FourVector.invert_function = invert_function
 
         v1 = Test_FourVector.generate_vector()
         v2 = Test_FourVector.generate_vector()
@@ -234,6 +257,13 @@ class Test_FourVector:
             self.test_sum_is_unit(v1, v2)
         except AssertionError:
             print("[ERROR] Sum function does not return a unit direction vector")
+            failed = True
+
+        try:
+            self.test_invert(v1)
+        except AssertionError:
+            print(
+                "[ERROR] Invertion function does not return a vector whose coordinates are inverted")
             failed = True
 
         if not failed:
