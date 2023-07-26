@@ -34,6 +34,13 @@ def three_vector_mag(vector: pd.DataFrame) -> pd.Series:
     return vector["momentum_mag"]
 
 
+def three_vector_invert(vector: pd.DataFrame) -> pd.DataFrame:
+    neg_vector = vector.copy()
+    neg_vector[["direction_x", "direction_y", "direction_z"]] *= -1
+
+    return neg_vector
+
+
 ################################################################
 # Four-vector operations
 ################################################################
@@ -61,6 +68,13 @@ def four_vector_mag(vector: pd.DataFrame) -> pd.DataFrame:
     return np.sign(mag2)*np.sqrt(np.abs(mag2))
 
 
+def four_vector_invert(vector: pd.DataFrame) -> pd.DataFrame:
+    neg_vector = vector.copy()
+    neg_vector[["direction_x", "direction_y", "direction_z", "energy"]] *= -1
+
+    return neg_vector
+
+
 ################################################################
 # Kinematic functions
 ################################################################
@@ -86,19 +100,14 @@ def total_track_momentum(df: pd.DataFrame) -> pd.Series:
     return three_vector_mag(three_vectors_sum([t1, t2, t3]))
 
 
-def tracks_minus_beam(beam: pd.DataFrame, tracks: List[pd.DataFrame]) -> pd.Series:
-    neg_beam = beam.copy()
-    neg_beam[["direction_x", "direction_y", "direction_z", "energy"]] *= -1
-
-    return four_vector_sum(tracks + [neg_beam])
+def missing_mass_sqr(beam: pd.DataFrame, momenta: List[pd.DataFrame]) -> pd.Series:
+    momenta_sum = four_vector_sum(momenta)
+    return four_vector_mag2(four_vector_sum([beam, four_vector_invert(momenta_sum)]))
 
 
-def missing_mass_sqr(beam: pd.DataFrame, tracks: List[pd.DataFrame]) -> pd.Series:
-    return four_vector_mag2(tracks_minus_beam(beam, tracks))
-
-
-def missing_mass(beam: pd.DataFrame, tracks: List[pd.DataFrame]) -> pd.Series:
-    return four_vector_mag(tracks_minus_beam(beam, tracks))
+def missing_mass(beam: pd.DataFrame, momenta: List[pd.DataFrame]) -> pd.Series:
+    momenta_sum = four_vector_sum(momenta)
+    return four_vector_mag(four_vector_sum([beam, four_vector_invert(momenta_sum)]))
 
 
 ################################################################
