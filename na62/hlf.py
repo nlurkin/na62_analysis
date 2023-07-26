@@ -5,6 +5,7 @@ import numpy as np
 
 from .extract import cluster, photon_momentum, track
 
+
 ################################################################
 # Three-vector operations
 ################################################################
@@ -64,8 +65,9 @@ def four_vector_mag(vector: pd.DataFrame) -> pd.DataFrame:
 # Kinematic functions
 ################################################################
 
-def invariant_mass(df: List[pd.DataFrame]) -> pd.Series:
-    pass
+def invariant_mass(momenta: List[pd.DataFrame]) -> pd.Series:
+    total_four_momentum = four_vector_sum(momenta)
+    return four_vector_mag(total_four_momentum)
 
 
 def total_momentum(df: pd.DataFrame) -> pd.Series:
