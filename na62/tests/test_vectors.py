@@ -116,7 +116,7 @@ class Test_ThreeVector:
         try:
             self.test_return_type_magnitude(v1)
         except (AssertionError, TypeError):
-            print("[ERROR] Magnitude function does not return the expected data type")
+            print("[ERROR] Magnitude function does not return the expected data type (pandas.Series expected)")
             failed = True
 
         try:
@@ -128,7 +128,7 @@ class Test_ThreeVector:
         try:
             self.test_return_type_sum(v1)
         except (AssertionError, TypeError):
-            print("[ERROR] Sum function does not return the expected data type")
+            print("[ERROR] Sum function does not return the expected data type (pandas.DataFrame expected)")
             failed = True
 
         try:
@@ -146,7 +146,7 @@ class Test_ThreeVector:
         try:
             self.test_return_type_invert(v1)
         except (AssertionError, TypeError):
-            print("[ERROR] Invert function does not return the expected data type")
+            print("[ERROR] Invert function does not return the expected data type (pandas.DataFrame expected)")
             failed = True
 
         try:
@@ -291,7 +291,7 @@ class Test_FourVector:
             self.test_return_type_magnitude2(v1)
         except (AssertionError, TypeError):
             print(
-                "[ERROR] Magnitude squared function does not return the expected data type")
+                "[ERROR] Magnitude squared function does not return the expected data type (pandas.Series expected)")
             failed = True
 
         try:
@@ -304,7 +304,7 @@ class Test_FourVector:
         try:
             self.test_return_type_magnitude(v1)
         except (AssertionError, TypeError):
-            print("[ERROR] Magnitude function does not return the expected data type")
+            print("[ERROR] Magnitude function does not return the expected data type (pandas.Series expected)")
             failed = True
 
         try:
@@ -316,7 +316,7 @@ class Test_FourVector:
         try:
             self.test_return_type_sum(v1)
         except (AssertionError, TypeError):
-            print("[ERROR] Sum function does not return the expected data type")
+            print("[ERROR] Sum function does not return the expected data type (pandas.DataFrame expected)")
             failed = True
 
         try:
@@ -334,7 +334,7 @@ class Test_FourVector:
         try:
             self.test_return_type_invert(v1)
         except (AssertionError, TypeError):
-            print("[ERROR] Invert function does not return the expected data type")
+            print("[ERROR] Invert function does not return the expected data type (pandas.DataFrame expected)")
             failed = True
 
         try:
