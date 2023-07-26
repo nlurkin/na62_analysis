@@ -5,26 +5,9 @@ import numpy as np
 
 from .extract import cluster, photon_momentum, track
 
-
-def invariant_mass(df: List[pd.DataFrame]) -> pd.Series:
-    pass
-
-
-def total_momentum(df: pd.DataFrame) -> pd.Series:
-    t1 = track(df, 1).fillna(0)
-    t2 = track(df, 2).fillna(0)
-    t3 = track(df, 3).fillna(0)
-    c1 = photon_momentum(df, 1).fillna(0)
-    c2 = photon_momentum(df, 2).fillna(0)
-    return three_vector_mag(three_vectors_sum([t1, t2, t3, c1, c2]))
-
-
-def total_track_momentum(df: pd.DataFrame) -> pd.Series:
-    t1 = track(df, 1).fillna(0)
-    t2 = track(df, 2).fillna(0)
-    t3 = track(df, 3).fillna(0)
-    return three_vector_mag(three_vectors_sum([t1, t2, t3]))
-
+################################################################
+# Three-vector operations
+################################################################
 
 def three_vectors_sum(vectors: List[pd.DataFrame]) -> pd.DataFrame:
     if len(vectors) == 0:
@@ -49,21 +32,10 @@ def three_vectors_sum(vectors: List[pd.DataFrame]) -> pd.DataFrame:
 def three_vector_mag(vector: pd.DataFrame) -> pd.Series:
     return vector["momentum_mag"]
 
-def tracks_minus_beam(beam: pd.DataFrame, tracks: List[pd.DataFrame]) -> pd.Series:
-    neg_beam = beam.copy()
-    neg_beam["direction_x"] *= -1
-    neg_beam["direction_y"] *= -1
-    neg_beam["direction_z"] *= -1
 
-    return four_vector_sum(tracks + neg_beam)
-
-def missing_mass_sqr(beam: pd.DataFrame, tracks: List[pd.DataFrame]) -> pd.Series:
-    return four_vector_mag2(tracks_minus_beam(beam, tracks))
-
-
-def missing_mass(beam: pd.DataFrame, tracks: List[pd.DataFrame]) -> pd.Series:
-    return four_vector_mag(tracks_minus_beam(beam, tracks))
-
+################################################################
+# Four-vector operations
+################################################################
 
 def four_vector_sum(vectors: List[pd.DataFrame]) -> pd.DataFrame:
     if len(vectors) == 0:
@@ -78,12 +50,60 @@ def four_vector_sum(vectors: List[pd.DataFrame]) -> pd.DataFrame:
 
     return momentum_sum
 
+
 def four_vector_mag2(vector: pd.DataFrame) -> pd.DataFrame:
     return vector["energy"]**2 - three_vector_mag(vector)**2
+
 
 def four_vector_mag(vector: pd.DataFrame) -> pd.DataFrame:
     mag2 = four_vector_mag2(vector)
     return np.sign(mag2)*np.sqrt(np.abs(mag2))
+
+
+################################################################
+# Kinematic functions
+################################################################
+
+def invariant_mass(df: List[pd.DataFrame]) -> pd.Series:
+    pass
+
+
+def total_momentum(df: pd.DataFrame) -> pd.Series:
+    t1 = track(df, 1).fillna(0)
+    t2 = track(df, 2).fillna(0)
+    t3 = track(df, 3).fillna(0)
+    c1 = photon_momentum(df, 1).fillna(0)
+    c2 = photon_momentum(df, 2).fillna(0)
+    return three_vector_mag(three_vectors_sum([t1, t2, t3, c1, c2]))
+
+
+def total_track_momentum(df: pd.DataFrame) -> pd.Series:
+    t1 = track(df, 1).fillna(0)
+    t2 = track(df, 2).fillna(0)
+    t3 = track(df, 3).fillna(0)
+    return three_vector_mag(three_vectors_sum([t1, t2, t3]))
+
+
+def tracks_minus_beam(beam: pd.DataFrame, tracks: List[pd.DataFrame]) -> pd.Series:
+    neg_beam = beam.copy()
+    neg_beam["direction_x"] *= -1
+    neg_beam["direction_y"] *= -1
+    neg_beam["direction_z"] *= -1
+
+    return four_vector_sum(tracks + neg_beam)
+
+
+def missing_mass_sqr(beam: pd.DataFrame, tracks: List[pd.DataFrame]) -> pd.Series:
+    return four_vector_mag2(tracks_minus_beam(beam, tracks))
+
+
+def missing_mass(beam: pd.DataFrame, tracks: List[pd.DataFrame]) -> pd.Series:
+    return four_vector_mag(tracks_minus_beam(beam, tracks))
+
+
+################################################################
+# Other useful functions
+################################################################
 
 def lkr_energy(df: pd.DataFrame) -> pd.Series:
     t1 = track(df, 1)
@@ -97,6 +117,7 @@ def lkr_energy(df: pd.DataFrame) -> pd.Series:
 def track_eop(df: pd.DataFrame, trackid: int) -> pd.Series:
     t = track(df, trackid)
     return t["lkr_energy"]/t["momentum_mag"]
+
 
 def set_mass(df: pd.DataFrame, mass: float) -> pd.DataFrame:
     df["mass"] = mass
