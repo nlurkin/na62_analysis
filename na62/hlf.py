@@ -88,11 +88,9 @@ def total_track_momentum(df: pd.DataFrame) -> pd.Series:
 
 def tracks_minus_beam(beam: pd.DataFrame, tracks: List[pd.DataFrame]) -> pd.Series:
     neg_beam = beam.copy()
-    neg_beam["direction_x"] *= -1
-    neg_beam["direction_y"] *= -1
-    neg_beam["direction_z"] *= -1
+    neg_beam[["direction_x", "direction_y", "direction_z", "energy"]] *= -1
 
-    return four_vector_sum(tracks + neg_beam)
+    return four_vector_sum(tracks + [neg_beam])
 
 
 def missing_mass_sqr(beam: pd.DataFrame, tracks: List[pd.DataFrame]) -> pd.Series:
