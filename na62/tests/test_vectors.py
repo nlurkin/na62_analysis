@@ -87,6 +87,21 @@ class Test_ThreeVector:
         invert[["direction_x", "direction_y", "direction_z"]] *= -1
         assert ((Test_ThreeVector.invert_function(vector1) == invert).all().all())
 
+    def test_return_type_sum(self, vector1, vector2):
+        ''' Test the return type of the sum function.'''
+        ret = Test_ThreeVector.sum_function([vector1, vector2])
+        assert (type(ret) == pd.DataFrame)
+
+    def test_return_type_magnitude(self, vector1):
+        ''' Test the return type of the sum function.'''
+        ret = Test_ThreeVector.mag_function(vector1)
+        assert (type(ret) == pd.Series)
+
+    def test_return_type_invert(self, vector1):
+        ''' Test the return type of the sum function.'''
+        ret = Test_ThreeVector.invert_function(vector1)
+        assert (type(ret) == pd.DataFrame)
+
     def run_tests(self, *, sum_function, mag_function, invert_function):
         ''' Run the tests manually, comparing the results on randomly generated vectors against the library functions '''
         Test_ThreeVector.sum_function = sum_function
@@ -99,9 +114,21 @@ class Test_ThreeVector:
         failed = False
 
         try:
+            self.test_return_type_magnitude(v1)
+        except (AssertionError, TypeError):
+            print("[ERROR] Magnitude function does not return the expected data type")
+            failed = True
+
+        try:
             self.test_magnitude(v1)
         except (AssertionError, TypeError):
             print("[ERROR] Magnitude function does not return the expected values")
+            failed = True
+
+        try:
+            self.test_return_type_sum(v1)
+        except (AssertionError, TypeError):
+            print("[ERROR] Sum function does not return the expected data type")
             failed = True
 
         try:
@@ -114,6 +141,12 @@ class Test_ThreeVector:
             self.test_sum_is_unit(v1, v2)
         except (AssertionError, TypeError):
             print("[ERROR] Sum function does not return a unit direction vector")
+            failed = True
+
+        try:
+            self.test_return_type_invert(v1)
+        except (AssertionError, TypeError):
+            print("[ERROR] Invert function does not return the expected data type")
             failed = True
 
         try:
@@ -222,6 +255,26 @@ class Test_FourVector:
         invert[["direction_x", "direction_y", "direction_z", "energy"]] *= -1
         assert ((Test_FourVector.invert_function(vector1) == invert).all().all())
 
+    def test_return_type_sum(self, vector1, vector2):
+        ''' Test the return type of the sum function.'''
+        ret = Test_FourVector.sum_function([vector1, vector2])
+        assert (type(ret) == pd.DataFrame)
+
+    def test_return_type_magnitude(self, vector1):
+        ''' Test the return type of the sum function.'''
+        ret = Test_FourVector.mag_function(vector1)
+        assert (type(ret) == pd.Series)
+
+    def test_return_type_magnitude2(self, vector1):
+        ''' Test the return type of the sum function.'''
+        ret = Test_FourVector.mag2_function(vector1)
+        assert (type(ret) == pd.Series)
+
+    def test_return_type_invert(self, vector1):
+        ''' Test the return type of the sum function.'''
+        ret = Test_FourVector.invert_function(vector1)
+        assert (type(ret) == pd.DataFrame)
+
     def run_tests(self, *, sum_function, mag_function, mag2_function, invert_function):
         ''' Run the tests manually, comparing the results on randomly generated vectors against the library functions '''
         Test_FourVector.sum_function = sum_function
@@ -235,6 +288,13 @@ class Test_FourVector:
         failed = False
 
         try:
+            self.test_return_type_magnitude2(v1)
+        except (AssertionError, TypeError):
+            print(
+                "[ERROR] Magnitude squared function does not return the expected data type")
+            failed = True
+
+        try:
             self.test_magnitude2(v1)
         except (AssertionError, TypeError):
             print(
@@ -242,9 +302,21 @@ class Test_FourVector:
             failed = True
 
         try:
+            self.test_return_type_magnitude(v1)
+        except (AssertionError, TypeError):
+            print("[ERROR] Magnitude function does not return the expected data type")
+            failed = True
+
+        try:
             self.test_magnitude(v1)
         except (AssertionError, TypeError):
             print("[ERROR] Magnitude function does not return the expected values")
+            failed = True
+
+        try:
+            self.test_return_type_sum(v1)
+        except (AssertionError, TypeError):
+            print("[ERROR] Sum function does not return the expected data type")
             failed = True
 
         try:
@@ -257,6 +329,12 @@ class Test_FourVector:
             self.test_sum_is_unit(v1, v2)
         except (AssertionError, TypeError):
             print("[ERROR] Sum function does not return a unit direction vector")
+            failed = True
+
+        try:
+            self.test_return_type_invert(v1)
+        except (AssertionError, TypeError):
+            print("[ERROR] Invert function does not return the expected data type")
             failed = True
 
         try:
