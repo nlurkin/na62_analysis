@@ -100,25 +100,25 @@ class Test_ThreeVector:
 
         try:
             self.test_magnitude(v1)
-        except AssertionError:
+        except (AssertionError, TypeError):
             print("[ERROR] Magnitude function does not return the expected values")
             failed = True
 
         try:
             self.test_sum(v1, v2, vsum)
-        except AssertionError:
+        except (AssertionError, TypeError):
             print("[ERROR] Sum function does not return the expected values")
             failed = True
 
         try:
             self.test_sum_is_unit(v1, v2)
-        except AssertionError:
+        except (AssertionError, TypeError):
             print("[ERROR] Sum function does not return a unit direction vector")
             failed = True
 
         try:
             self.test_invert(v1)
-        except AssertionError:
+        except (AssertionError, TypeError):
             print(
                 "[ERROR] Invertion function does not return a vector whose coordinates are inverted")
             failed = True
@@ -236,34 +236,34 @@ class Test_FourVector:
 
         try:
             self.test_magnitude2(v1)
-        except AssertionError:
+        except (AssertionError, TypeError):
             print(
                 "[ERROR] Magnitude squared function does not return the expected values")
             failed = True
 
         try:
             self.test_magnitude(v1)
-        except AssertionError:
+        except (AssertionError, TypeError):
             print("[ERROR] Magnitude function does not return the expected values")
             failed = True
 
         try:
             self.test_sum(v1, v2, vsum)
-        except AssertionError:
+        except (AssertionError, TypeError):
             print("[ERROR] Sum function does not return the expected values")
             failed = True
 
         try:
             self.test_sum_is_unit(v1, v2)
-        except AssertionError:
+        except (AssertionError, TypeError):
             print("[ERROR] Sum function does not return a unit direction vector")
             failed = True
 
         try:
             self.test_invert(v1)
-        except AssertionError:
+        except (AssertionError, TypeError):
             print(
-                "[ERROR] Invertion function does not return a vector whose coordinates are inverted")
+                "[ERROR] Invert function does not return a vector whose coordinates are inverted")
             failed = True
 
         if not failed:
