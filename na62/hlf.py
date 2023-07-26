@@ -131,3 +131,4 @@ def track_eop(df: pd.DataFrame, trackid: int) -> pd.Series:
 def set_mass(df: pd.DataFrame, mass: float) -> pd.DataFrame:
     df["mass"] = mass
     df["energy"] = np.sqrt(mass**2 + df["momentum_mag"]**2)
+    return df
