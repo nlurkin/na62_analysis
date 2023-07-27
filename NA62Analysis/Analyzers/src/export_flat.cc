@@ -81,7 +81,7 @@ void export_flat::InitHist() {
 
   BookHisto(new TH1I("muv3tdiff", "muv3tdiff", 100, -10, 10));
   const char *selections[7]  = {"Events", "k3pi", "ke3", "kmu2", "k2pi", "kmu3", "autopass"};
-  TH2I *h = new TH2I("sel_matrix", "sel_matrix", 6, -0.5, 5.5, 7, -0.5, 6.5);
+  TH2I *h = new TH2I("sel_matrix", "sel_matrix", 7, -0.5, 6.5, 7, -0.5, 6.5);
   BookHisto(h);
   for (int i =0; i<7; ++i){
     h->GetXaxis()->SetBinLabel(i+1, selections[i]);
@@ -200,7 +200,7 @@ void export_flat::Process(int) {
   flat.fBeam.fPosZ = beamPar->GetBeamZ();
 
   if(autopass_sel) {
-    fEventType = 5;
+    fEventType = 6;
 
     if(autopassVtx!=-1){
       DownstreamTrack &t1 = dsTracks[vertices3[autopassVtx].GetTrackIndex(0)];
@@ -287,7 +287,7 @@ void export_flat::Process(int) {
     FillCluster(k2piPi0.fEnergyClusters.second, flat.clus2);
   }
   else if(kmu3_sel) {
-    fEventType = 2;
+    fEventType = 5;
     DownstreamTrack &t1 = dsTracks[kmu3Track];
     float trackTime = t1.GetMostPreciseTime();
 

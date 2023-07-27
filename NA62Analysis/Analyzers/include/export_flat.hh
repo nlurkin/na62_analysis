@@ -96,7 +96,7 @@ protected:
 
   TTree *myTree;
   FlatStruct flat;
-  Int_t fEventType; // 1 k3pi, 2 ke3, 3 kmu2, 4 k2pi, 5 bckg
+  Int_t fEventType; // 1 k3pi, 2 ke3, 3 kmu2, 4 k2pi, 5 kmu3, 6 bckg
   Int_t fRunNumber;
   Int_t fBurstNumber;
 
