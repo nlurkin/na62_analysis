@@ -34,7 +34,7 @@ def fit_gaussian(data: pd.DataFrame, *, bins: int, display_range: Tuple[int, int
     if plot:
         if ax is None:
             ax = plt.figure().gca()
-        data.hist(bins=100, range=(65000, 85000), ax=ax)
+        data.hist(bins=100, range=display_range, ax=ax)
         ax.plot(bins_center, out.best_fit, "-", label="Fit")
         ax.legend()
     return out
