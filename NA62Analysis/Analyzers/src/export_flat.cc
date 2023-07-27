@@ -9,6 +9,7 @@
 #include "Pi0Selection.hh"
 #include "EnergyCluster.hh"
 #include "TwoLinesCDA.hh"
+#include "Kmu3SelectionNoSpectrometer.hh"
 
 #include <iostream>
 #include <stdlib.h>
@@ -79,10 +80,10 @@ void export_flat::InitOutput() {
 void export_flat::InitHist() {
 
   BookHisto(new TH1I("muv3tdiff", "muv3tdiff", 100, -10, 10));
-  const char *selections[6]  = {"Events","k3pi","ke3","kmu2","k2pi", "autopass"};
-  TH2I *h = new TH2I("sel_matrix", "sel_matrix", 6, -0.5, 5.5, 6, -0.5, 5.5);
+  const char *selections[7]  = {"Events", "k3pi", "ke3", "kmu2", "k2pi", "kmu3", "autopass"};
+  TH2I *h = new TH2I("sel_matrix", "sel_matrix", 6, -0.5, 5.5, 7, -0.5, 6.5);
   BookHisto(h);
-  for (int i =0; i<6; ++i){
+  for (int i =0; i<7; ++i){
     h->GetXaxis()->SetBinLabel(i+1, selections[i]);
     h->GetYaxis()->SetBinLabel(i+1, selections[i]);
   }
@@ -117,6 +118,10 @@ void export_flat::Process(int) {
   Bool_t kmu2_sel = *GetOutput<Bool_t>("Kmu2Selection.EventSelected");
   Int_t  kmu2Track = *GetOutput<Int_t>("Kmu2Selection.Kmu2TrackID");
 
+  Bool_t kmu3_sel = *GetOutput<Bool_t>("Kmu3Selection.EventSelected");
+  Int_t  kmu3Track = *GetOutput<Int_t>("Kmu3Selection.Kmu3TrackID");
+  Pi0SelectionOutput kmu3Pi0 = *GetOutput<Pi0SelectionOutput>("Kmu3Selection.Kmu3Pi0SelectionOutput");
+
   Bool_t k2pi_sel = *GetOutput<Bool_t>("K2piSelection.EventSelected");
   Int_t  k2piTrack = *GetOutput<Int_t>("K2piSelection.K2piTrackID");
   Pi0SelectionOutput k2piPi0 = *GetOutput<Pi0SelectionOutput>("K2piSelection.K2piPi0SelectionOutput");
@@ -132,6 +137,7 @@ void export_flat::Process(int) {
     if(ke3_sel ) FillHisto2("sel_matrix", "k3pi", "ke3" , 1);
     if(kmu2_sel) FillHisto2("sel_matrix", "k3pi", "kmu2", 1);
     if(k2pi_sel) FillHisto2("sel_matrix", "k3pi", "k2pi", 1);
+    if(kmu3_sel) FillHisto2("sel_matrix", "k3pi", "kmu3", 1);
     if(autopass_sel) FillHisto2("sel_matrix", "k3pi", "autopass", 1);
   }
   if(ke3_sel){
@@ -139,6 +145,7 @@ void export_flat::Process(int) {
     if(k3pi_sel) FillHisto2("sel_matrix", "ke3", "k3pi", 1);
     if(kmu2_sel) FillHisto2("sel_matrix", "ke3", "kmu2", 1);
     if(k2pi_sel) FillHisto2("sel_matrix", "ke3", "k2pi", 1);
+    if(kmu3_sel) FillHisto2("sel_matrix", "ke3", "kmu3", 1);
     if(autopass_sel) FillHisto2("sel_matrix", "ke3", "autopass", 1);
   }
   if(kmu2_sel){
@@ -146,6 +153,7 @@ void export_flat::Process(int) {
     if(k3pi_sel) FillHisto2("sel_matrix", "kmu2", "k3pi", 1);
     if(ke3_sel ) FillHisto2("sel_matrix", "kmu2", "ke3" , 1);
     if(k2pi_sel) FillHisto2("sel_matrix", "kmu2", "k2pi", 1);
+    if(kmu3_sel) FillHisto2("sel_matrix", "kmu2", "kmu3", 1);
     if(autopass_sel) FillHisto2("sel_matrix", "kmu2", "autopass", 1);
   }
   if(k2pi_sel){
@@ -153,7 +161,16 @@ void export_flat::Process(int) {
     if(k3pi_sel) FillHisto2("sel_matrix", "k2pi", "k3pi", 1);
     if(ke3_sel ) FillHisto2("sel_matrix", "k2pi", "ke3" , 1);
     if(kmu2_sel) FillHisto2("sel_matrix", "k2pi", "kmu2", 1);
+    if(kmu3_sel) FillHisto2("sel_matrix", "k2pi", "kmu3", 1);
     if(autopass_sel) FillHisto2("sel_matrix", "k2pi", "autopass", 1);
+  }
+  if(kmu3_sel){
+    FillHisto2("sel_matrix", "kmu3", "kmu3", 1);
+    if(k3pi_sel) FillHisto2("sel_matrix", "kmu3", "k3pi", 1);
+    if(ke3_sel ) FillHisto2("sel_matrix", "kmu3", "ke3" , 1);
+    if(kmu2_sel) FillHisto2("sel_matrix", "kmu3", "kmu2", 1);
+    if(k2pi_sel) FillHisto2("sel_matrix", "kmu3", "k2pi", 1);
+    if(autopass_sel) FillHisto2("sel_matrix", "kmu3", "autopass", 1);
   }
   if(autopass_sel){
     FillHisto2("sel_matrix", "autopass", "autopass", 1);
@@ -161,8 +178,9 @@ void export_flat::Process(int) {
     if(ke3_sel ) FillHisto2("sel_matrix", "autopass", "ke3" , 1);
     if(kmu2_sel) FillHisto2("sel_matrix", "autopass", "kmu2", 1);
     if(k2pi_sel) FillHisto2("sel_matrix", "autopass", "k2pi", 1);
+    if(kmu3_sel) FillHisto2("sel_matrix", "autopass", "kmu3", 1);
   }
-  Int_t nSel = k3pi_sel + ke3_sel + kmu2_sel + k2pi_sel;
+  Int_t nSel = k3pi_sel + ke3_sel + kmu2_sel + k2pi_sel + kmu3_sel;
   if((nSel!=1) & !autopass_sel) return; // Allow exactly one positive selection, or autopass
 
   flat.track1.fExists = false;
@@ -267,6 +285,20 @@ void export_flat::Process(int) {
     FillTrack(t1, flat.track1, trackTime);
     FillCluster(k2piPi0.fEnergyClusters.first, flat.clus1);
     FillCluster(k2piPi0.fEnergyClusters.second, flat.clus2);
+  }
+  else if(kmu3_sel) {
+    fEventType = 2;
+    DownstreamTrack &t1 = dsTracks[kmu3Track];
+    float trackTime = t1.GetMostPreciseTime();
+
+    flat.fVertex.fX = t1.GetBeamAxisVertex().X();
+    flat.fVertex.fY = t1.GetBeamAxisVertex().Y();
+    flat.fVertex.fZ = t1.GetBeamAxisVertex().Z();
+    FillTrack(t1, flat.track1, trackTime);
+
+    auto clusters = *GetOutput<std::vector<EnergyCluster>>("EnergyClusterBuilder.Output");
+    FillCluster(clusters[kmu3Pi0.fClustersID.first], flat.clus1);
+    FillCluster(clusters[kmu3Pi0.fClustersID.second], flat.clus2);
   }
   myTree->Fill();
 }
