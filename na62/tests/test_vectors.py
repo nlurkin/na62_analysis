@@ -165,7 +165,7 @@ class Test_ThreeVector:
 
 class Test_FourVector:
     # Functions to be tested
-    sum_function = hlf.four_vector_sum
+    sum_function = hlf.four_vectors_sum
     mag_function = hlf.four_vector_mag
     mag2_function = hlf.four_vector_mag2
     invert_function = hlf.four_vector_invert
@@ -287,7 +287,7 @@ class Test_FourVector:
 
         v1 = Test_FourVector.generate_vector()
         v2 = Test_FourVector.generate_vector()
-        vsum = hlf.four_vector_sum([v1, v2])
+        vsum = hlf.four_vectors_sum([v1, v2])
         failed = False
 
         try:

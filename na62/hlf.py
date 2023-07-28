@@ -45,7 +45,7 @@ def three_vector_invert(vector: pd.DataFrame) -> pd.DataFrame:
 # Four-vector operations
 ################################################################
 
-def four_vector_sum(vectors: List[pd.DataFrame]) -> pd.DataFrame:
+def four_vectors_sum(vectors: List[pd.DataFrame]) -> pd.DataFrame:
     if len(vectors) == 0:
         return pd.Series()
 
@@ -80,7 +80,7 @@ def four_vector_invert(vector: pd.DataFrame) -> pd.DataFrame:
 ################################################################
 
 def invariant_mass(momenta: List[pd.DataFrame]) -> pd.Series:
-    total_four_momentum = four_vector_sum(momenta)
+    total_four_momentum = four_vectors_sum(momenta)
     return four_vector_mag(total_four_momentum)
 
 
@@ -101,13 +101,13 @@ def total_track_momentum(df: pd.DataFrame) -> pd.Series:
 
 
 def missing_mass_sqr(beam: pd.DataFrame, momenta: List[pd.DataFrame]) -> pd.Series:
-    momenta_sum = four_vector_sum(momenta)
-    return four_vector_mag2(four_vector_sum([beam, four_vector_invert(momenta_sum)]))
+    momenta_sum = four_vectors_sum(momenta)
+    return four_vector_mag2(four_vectors_sum([beam, four_vector_invert(momenta_sum)]))
 
 
 def missing_mass(beam: pd.DataFrame, momenta: List[pd.DataFrame]) -> pd.Series:
-    momenta_sum = four_vector_sum(momenta)
-    return four_vector_mag(four_vector_sum([beam, four_vector_invert(momenta_sum)]))
+    momenta_sum = four_vectors_sum(momenta)
+    return four_vector_mag(four_vectors_sum([beam, four_vector_invert(momenta_sum)]))
 
 
 ################################################################
