@@ -132,3 +132,15 @@ def set_mass(df: pd.DataFrame, mass: float) -> pd.DataFrame:
     df["mass"] = mass
     df["energy"] = np.sqrt(mass**2 + df["momentum_mag"]**2)
     return df
+
+def ring_radius(p, mass):
+    n = 1.000063 # Refractive index in NA62
+    f = 17*1000  # Focal lenght in NA62 (17m)
+    c = 1        # Light speed in natural units
+
+    # Compute the particle energy
+    E = np.sqrt(mass**2 + p**2)
+    # Compute the cos theta_c
+    cost = (c*E)/(n*p)
+    # Transform into radius using the focal length
+    return np.arccos(cost) * f
