@@ -39,6 +39,9 @@ void export_flat::BranchTrack(TrackStruct &ts, int it){
   myTree->Branch(TString::Format("track%i_direction_x", it), &(ts.fDirectionX));
   myTree->Branch(TString::Format("track%i_direction_y", it), &(ts.fDirectionY));
   myTree->Branch(TString::Format("track%i_direction_z", it), &(ts.fDirectionZ));
+  myTree->Branch(TString::Format("track%i_direction_am_x", it), &(ts.fDirectionAfterMagnetX));
+  myTree->Branch(TString::Format("track%i_direction_am_y", it), &(ts.fDirectionAfterMagnetY));
+  myTree->Branch(TString::Format("track%i_direction_am_z", it), &(ts.fDirectionAfterMagnetZ));
   myTree->Branch(TString::Format("track%i_momentum_mag", it), &(ts.fMomentumMag));
   myTree->Branch(TString::Format("track%i_time", it), &(ts.fTime));
   myTree->Branch(TString::Format("track%i_lkr_energy", it), &(ts.fLKrEnergy));
@@ -309,6 +312,12 @@ void export_flat::FillTrack(DownstreamTrack &t, TrackStruct &ts, float refTime){
   ts.fDirectionX = mom.Unit().X();
   ts.fDirectionY = mom.Unit().Y();
   ts.fDirectionZ = mom.Unit().Z();
+
+  mom = t.GetSpectrometerCandidate()->GetThreeMomentumAfterMagnet();
+  ts.fDirectionAfterMagnetX = mom.Unit().X();
+  ts.fDirectionAfterMagnetY = mom.Unit().Y();
+  ts.fDirectionAfterMagnetZ = mom.Unit().Z();
+
   ts.fMomentumMag = t.GetMomentum();
   ts.fTime = t.GetMostPreciseTime();
   ts.fLKrEnergy = t.GetLKrEnergy();
