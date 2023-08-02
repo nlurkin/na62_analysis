@@ -14,6 +14,7 @@ class TestKinematics:
     total_track_momentum_function = hlf.total_track_momentum
     missing_mass_sqr_function = hlf.missing_mass_sqr
     missing_mass_function = hlf.missing_mass
+    propagation_function = hlf.propagate
 
     @staticmethod
     def generate_cluster(nclusters):
@@ -28,13 +29,19 @@ class TestKinematics:
                              "vtx_z": np.random.uniform(low=-105000, high=176000, size=nvertices)})
 
     @staticmethod
+    def generate_position(npositions):
+        return pd.DataFrame({"position_x": np.random.uniform(low=-300, high=300, size=npositions),
+                             "position_y": np.random.uniform(low=-300, high=300, size=npositions),
+                             "position_z": [180000]*npositions})
+
+    @staticmethod
     def generate_data_sample():
         t1 = hlf.set_mass(Test_FourVector.generate_vector(),
-                          constants.pion_charged_mass)
+                          constants.pion_charged_mass).merge(TestKinematics.generate_position(100), left_index=True, right_index=True)
         t2 = hlf.set_mass(Test_FourVector.generate_vector(),
-                          constants.pion_charged_mass)
+                          constants.pion_charged_mass).merge(TestKinematics.generate_position(100), left_index=True, right_index=True)
         t3 = hlf.set_mass(Test_FourVector.generate_vector(),
-                          constants.pion_charged_mass)
+                          constants.pion_charged_mass).merge(TestKinematics.generate_position(100), left_index=True, right_index=True)
         c1 = TestKinematics.generate_cluster(100)
         c2 = TestKinematics.generate_cluster(100)
         beam = hlf.set_mass(Test_FourVector.generate_vector(),
@@ -49,25 +56,26 @@ class TestKinematics:
     @pytest.fixture
     def track1(self):
         t = pd.DataFrame([[4.46814671e-03,  1.27984793e-03,  9.99989212e-01,
-                           5.12514883e+04],
+                           5.12514883e+04, 1.68548615e+02, -1.41565323e+02,  1.80000000e+05],
                           [1.17558450e-03,  2.01282115e-03,  9.99997258e-01,
-                              2.90355469e+04],
+                              2.90355469e+04, -8.17661057e+01, -3.15279144e+02,  1.80000000e+05],
                           [-4.58456017e-03,  1.79088046e-03,  9.99987900e-01,
-                              3.38031484e+04],
+                              3.38031484e+04, 1.75021561e+02, -3.56559052e+02,  1.80000000e+05],
                           [3.59912030e-03,  2.66916584e-03,  9.99989986e-01,
-                              5.23151836e+04],
+                              5.23151836e+04, -3.49859344e+02, -4.89549675e+01,  1.80000000e+05],
                           [8.48642271e-03, -1.34753075e-03,  9.99963105e-01,
-                              2.52117676e+04],
+                              2.52117676e+04, -5.93185463e+01,  4.37552368e+02,  1.80000000e+05],
                           [1.48418359e-03,  3.31244688e-03,  9.99993384e-01,
-                              5.28407969e+04],
+                              5.28407969e+04, -2.58427399e+02, -1.07184753e+02,  1.80000000e+05],
                           [-5.04365051e-03, -5.17357280e-03,  9.99973893e-01,
-                              2.18096328e+04],
+                              2.18096328e+04, -7.65993500e+01, -3.42173218e+02,  1.80000000e+05],
                           [-6.54260337e-04,  1.64348166e-04,  9.99999762e-01,
-                              2.35864238e+04],
+                              2.35864238e+04, 5.13477707e+00, -3.96109070e+02,  1.80000000e+05],
                           [2.17961357e-03,  3.69834783e-03,  9.99990761e-01,
-                              4.92716914e+04],
+                              4.92716914e+04, 4.57680237e+02,  2.37446640e+02,  1.80000000e+05],
                           [8.28949362e-03,  5.92988683e-03,  9.99948084e-01,
-                              1.69399375e+04]], columns=["direction_x", "direction_y", "direction_z", "momentum_mag"])
+                              1.69399375e+04, 4.08505363e+01,  7.48688416e+02,  1.80000000e+05]],
+                         columns=["direction_x", "direction_y", "direction_z", "momentum_mag", "position_x", "position_y", "position_z"])
         return hlf.set_mass(t, constants.pion_charged_mass).fillna(0)
 
     @pytest.fixture
@@ -216,6 +224,19 @@ class TestKinematics:
         return pd.Series([145.56427076, -15.26922641, 130.03323376, 123.4443984,  139.97918523,
                           142.56379348, 131.01575425, -11.63049245, 140.28366422, 116.51721669])
 
+    @pytest.fixture
+    def propagated(self):
+        return pd.DataFrame([[4.41524047e+02, -6.33747299e+01,  2.41093000e+05],
+                             [-9.94592491e+00, -1.92309524e+02,  2.41093000e+05],
+                             [-1.05066363e+02, -2.47147468e+02,  2.41093000e+05],
+                             [-1.29976086e+02,  1.14114014e+02,  2.41093000e+05],
+                             [4.59161606e+02,  3.55224634e+02,  2.41093000e+05],
+                             [-1.67753571e+02,  9.51839031e+01,  2.41093000e+05],
+                             [-3.84739135e+02, -6.58250553e+02,  2.41093000e+05],
+                             [-3.48359592e+01, -3.86068545e+02,  2.41093000e+05],
+                             [5.90840599e+02,  4.63391891e+02,  2.41093000e+05],
+                             [5.47306863e+02,  1.11098180e+03,  2.41093000e+05]], columns=["position_x", "position_y", "position_z"])
+
     def test_invariant_mass(self, track1, track2, track3, invariant_mass):
         inv_mass = TestKinematics.inv_mass_fuction([track1, track2, track3])
         assert (np.isclose(inv_mass, invariant_mass).all())
@@ -235,6 +256,10 @@ class TestKinematics:
     def test_missing_mass(self, beam, track1, track2, track3, missing_mass):
         assert (np.isclose(TestKinematics.missing_mass_function(
             beam, [track1, track2, track3]), missing_mass).all())
+
+    def test_propagate(self, track1, propagated):
+        assert (np.isclose(TestKinematics.propagation_function(
+            track1, constants.lkr_position), propagated).all().all())
 
     def test_return_type_invariant_mass(self, track1, track2, track3):
         assert (type(TestKinematics.inv_mass_fuction(
@@ -256,13 +281,18 @@ class TestKinematics:
         assert (type(TestKinematics.missing_mass_function(
             beam, [track1, track2, track3])) == pd.Series)
 
-    def run_tests(self, *, inv_mass_fuction, total_momentum_function, total_track_momentum_function, missing_mass_sqr_function, missing_mass_function):
+    def test_return_type_propagate(self, track1):
+        assert (type(TestKinematics.propagation_function(
+            track1, constants.lkr_position)) == pd.DataFrame)
+
+    def run_tests(self, *, inv_mass_fuction, total_momentum_function, total_track_momentum_function, missing_mass_sqr_function, missing_mass_function, propagation_function):
         ''' Run the tests manually, comparing the results against the library functions '''
         TestKinematics.inv_mass_fuction = inv_mass_fuction
         TestKinematics.total_momentum_function = total_momentum_function
         TestKinematics.total_track_momentum_function = total_track_momentum_function
         TestKinematics.missing_mass_sqr_function = missing_mass_sqr_function
         TestKinematics.missing_mass_function = missing_mass_function
+        TestKinematics.propagation_function = propagation_function
 
         data = TestKinematics.generate_data_sample()
         t1 = extract.track(data, 1)
@@ -340,6 +370,19 @@ class TestKinematics:
                 beam, t1, t2, t3, hlf.missing_mass(beam, [t1, t2, t3]))
         except (AssertionError, TypeError):
             print("[ERROR] Missing mass function does not return the expected values")
+            failed = True
+
+        try:
+            self.test_return_type_propagate(t1)
+        except (AssertionError, TypeError):
+            print(
+                "[ERROR] Propagate function does not return the expected data type (pandas.DataFrame expected)")
+            failed = True
+
+        try:
+            self.test_propagate(t1, hlf.propagate(t1, constants.lkr_position))
+        except (AssertionError, TypeError):
+            print("[ERROR] Propagate function does not return the expected values")
             failed = True
 
         if not failed:
