@@ -13,4 +13,4 @@ proton_mass = 938.27208816
 
 # Definitions
 rich_hypothesis_map = {"bckg": 0, "e": 1, "mu": 2, "pi": 3, "k": 4, "mult": 99}
-event_type_map = {1: "k3pi", 2: "ke3", 3: "kmu2", 4: "k2pi", 5: "kmu3", 6: "background"}
+event_type_map = {"k3pi": 1, "ke3": 2, "kmu2": 3, "k2pi": 4, "kmu3": 5, "background": 6}
