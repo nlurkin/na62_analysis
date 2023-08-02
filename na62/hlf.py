@@ -110,6 +110,15 @@ def missing_mass(beam: pd.DataFrame, momenta: List[pd.DataFrame]) -> pd.Series:
     return four_vector_mag(four_vectors_sum([beam, four_vector_invert(momenta_sum)]))
 
 
+def propagate(track: pd.DataFrame, z_final: int, position_field_name: str = "position", direction_field_name: str = "direction") -> pd.DataFrame:
+    dz = z_final - track[f"{position_field_name}_z"]
+    factor = dz/track[f"{direction_field_name}_z"]
+    pos_final_x = track[f"{position_field_name}_x"] + track[f"{direction_field_name}_x"]*factor
+    pos_final_y = track[f"{position_field_name}_y"] + track[f"{direction_field_name}_y"]*factor
+    pos_final_z = track[f"{position_field_name}_z"] + track[f"{direction_field_name}_z"]*factor
+
+    return pd.DataFrame({"position_x": pos_final_x, "position_y": pos_final_y, "position_z": pos_final_z})
+
 ################################################################
 # Other useful functions
 ################################################################
