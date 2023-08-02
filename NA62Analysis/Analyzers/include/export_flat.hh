@@ -29,6 +29,8 @@ struct TrackStruct
   Float_t fDirectionAfterMagnetX = 0.0;
   Float_t fDirectionAfterMagnetY = 0.0;
   Float_t fDirectionAfterMagnetZ = 0.0;
+  Float_t fPosAfterMagnetX = 0.0;
+  Float_t fPosAfterMagnetY = 0.0;
   Float_t fMomentumMag = 0.0;
   Int_t fCharge = -99;
   Float_t fTime = -999.0;

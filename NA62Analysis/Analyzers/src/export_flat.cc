@@ -42,6 +42,8 @@ void export_flat::BranchTrack(TrackStruct &ts, int it){
   myTree->Branch(TString::Format("track%i_direction_am_x", it), &(ts.fDirectionAfterMagnetX));
   myTree->Branch(TString::Format("track%i_direction_am_y", it), &(ts.fDirectionAfterMagnetY));
   myTree->Branch(TString::Format("track%i_direction_am_z", it), &(ts.fDirectionAfterMagnetZ));
+  myTree->Branch(TString::Format("track%i_position_am_x", it), &(ts.fPosAfterMagnetX));
+  myTree->Branch(TString::Format("track%i_position_am_y", it), &(ts.fPosAfterMagnetY));
   myTree->Branch(TString::Format("track%i_momentum_mag", it), &(ts.fMomentumMag));
   myTree->Branch(TString::Format("track%i_time", it), &(ts.fTime));
   myTree->Branch(TString::Format("track%i_lkr_energy", it), &(ts.fLKrEnergy));
@@ -317,6 +319,10 @@ void export_flat::FillTrack(DownstreamTrack &t, TrackStruct &ts, float refTime){
   ts.fDirectionAfterMagnetX = mom.Unit().X();
   ts.fDirectionAfterMagnetY = mom.Unit().Y();
   ts.fDirectionAfterMagnetZ = mom.Unit().Z();
+
+  TVector3 pos = t.GetSpectrometerCandidate()->GetPositionAfterMagnet();
+  ts.fPosAfterMagnetX = pos.X();
+  ts.fPosAfterMagnetY = pos.Y();
 
   ts.fMomentumMag = t.GetMomentum();
   ts.fTime = t.GetMostPreciseTime();
