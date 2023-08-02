@@ -1,5 +1,6 @@
 # Detector related constants
 lkr_position = 241093
+muv3_position = 246800
 
 # Particle properties
 photon_mass = 0
