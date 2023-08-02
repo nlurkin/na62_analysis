@@ -1,7 +1,8 @@
+from typing import Union
+
 import numpy as np
 import pandas as pd
 import uproot
-from typing import Union
 
 from .hlf import track_eop
 
@@ -19,6 +20,9 @@ def import_root_file(filename: str, limit: Union[None, int] = None) -> pd.DataFr
         type_dict[f"track{trackid}_direction_x"] = np.float64
         type_dict[f"track{trackid}_direction_y"] = np.float64
         type_dict[f"track{trackid}_direction_z"] = np.float64
+        type_dict[f"track{trackid}_direction_am_x"] = np.float64
+        type_dict[f"track{trackid}_direction_am_y"] = np.float64
+        type_dict[f"track{trackid}_direction_am_z"] = np.float64
 
     data = data.astype(type_dict)
     clean_clusters(data)
@@ -60,6 +64,10 @@ def compute_derived(df: pd.DataFrame) -> None:
     compute_eop(df, 1)
     compute_eop(df, 2)
     compute_eop(df, 3)
+
+    df["track1_position_am_z"] = 180000
+    df["track2_position_am_z"] = 180000
+    df["track3_position_am_z"] = 180000
 
 
 def compute_eop(df: pd.DataFrame, trackid: int) -> None:
