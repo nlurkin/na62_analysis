@@ -1,0 +1,13 @@
+name: ucl
+channels:
+  - pytorch
+  - conda-forge
+  - defaults
+dependencies:
+  - uproot
+  - matplotlib=3.7
+  - pandas
+  - jupyterlab
+  - numpy
+  - pytest
+  - lmfit
