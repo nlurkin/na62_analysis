@@ -43,7 +43,7 @@ def all_tracks(df: pd.DataFrame) -> pd.DataFrame:
     t2 = track(df, 2)
     t3 = track(df, 3)
 
-    return pd.concat([t1.loc[t1["exists"]], t2.loc[t2["exists"]], t3.loc[t3["exists"]]])
+    return pd.concat([t1.loc[t1["exists"]], t2.loc[t2["exists"]], t3.loc[t3["exists"]]]).reset_index()
 
 
 def all_clusters(df: pd.DataFrame) -> pd.DataFrame:
