@@ -1,12 +1,11 @@
 import functools
 from typing import Callable, Dict, List, Union
 
-import pandas as pd
 import numpy as np
+import pandas as pd
 
 from . import constants
 from .extract import cluster, photon_momentum, track
-
 
 ################################################################
 # Three-vector operations
@@ -115,9 +114,12 @@ def missing_mass(beam: pd.DataFrame, momenta: List[pd.DataFrame]) -> pd.Series:
 def propagate(track: pd.DataFrame, z_final: int, position_field_name: str = "position", direction_field_name: str = "direction") -> pd.DataFrame:
     dz = z_final - track[f"{position_field_name}_z"]
     factor = dz/track[f"{direction_field_name}_z"]
-    pos_final_x = track[f"{position_field_name}_x"] + track[f"{direction_field_name}_x"]*factor
-    pos_final_y = track[f"{position_field_name}_y"] + track[f"{direction_field_name}_y"]*factor
-    pos_final_z = track[f"{position_field_name}_z"] + track[f"{direction_field_name}_z"]*factor
+    pos_final_x = track[f"{position_field_name}_x"] + \
+        track[f"{direction_field_name}_x"]*factor
+    pos_final_y = track[f"{position_field_name}_y"] + \
+        track[f"{direction_field_name}_y"]*factor
+    pos_final_z = track[f"{position_field_name}_z"] + \
+        track[f"{direction_field_name}_z"]*factor
 
     return pd.DataFrame({"position_x": pos_final_x, "position_y": pos_final_y, "position_z": pos_final_z})
 
@@ -210,8 +212,9 @@ def set_mass(df: pd.DataFrame, mass: float) -> pd.DataFrame:
     df["energy"] = np.sqrt(mass**2 + df["momentum_mag"]**2)
     return df
 
+
 def ring_radius(p, mass):
-    n = 1.000063 # Refractive index in NA62
+    n = 1.000063  # Refractive index in NA62
     f = 17*1000  # Focal lenght in NA62 (17m)
     c = 1        # Light speed in natural units
 
