@@ -4,6 +4,7 @@ channels:
   - conda-forge
   - defaults
 dependencies:
+  - python=3.11
   - uproot
   - matplotlib=3.7
   - pandas
