@@ -1,8 +1,10 @@
-from typing import List
+import functools
+from typing import Callable, Dict, List, Union
 
 import pandas as pd
 import numpy as np
 
+from . import constants
 from .extract import cluster, photon_momentum, track
 
 
@@ -118,6 +120,72 @@ def propagate(track: pd.DataFrame, z_final: int, position_field_name: str = "pos
     pos_final_z = track[f"{position_field_name}_z"] + track[f"{direction_field_name}_z"]*factor
 
     return pd.DataFrame({"position_x": pos_final_x, "position_y": pos_final_y, "position_z": pos_final_z})
+
+
+################################################################
+# Function to define and apply cuts
+################################################################
+
+def combine_cuts(cuts: List[Callable]) -> Callable:
+    '''
+    Combine a list of cuts into a single Callable
+    '''
+    def cut(df: pd.DataFrame) -> pd.Series:
+        all_cuts = map(lambda cut: cut(df), cuts)
+        return functools.reduce(lambda c1, c2: c1 & c2, all_cuts)
+    return cut
+
+
+def select(df: pd.DataFrame, cuts: List[Callable]) -> pd.DataFrame:
+    '''
+    Apply a list of cuts to a dataframe
+    '''
+    return df.loc[combine_cuts(cuts)]
+
+
+def identify(df: pd.DataFrame, definitions: Dict[str, List[Callable]]) -> pd.DataFrame:
+    '''
+    TODO
+    '''
+    ptype = pd.DataFrame(False, index=df.index,
+                         columns=definitions.keys(), dtype=bool)
+    for ptype_name in definitions:
+        ptype.loc[combine_cuts(definitions[ptype_name])(df), ptype_name] = True
+    return ptype
+
+
+def make_eop_cut(min_eop: Union[float, None], max_eop: Union[float, None]) -> Callable:
+    def cut(df: pd.DataFrame) -> pd.Series():
+        min_cond = df["eop"] > min_eop if min_eop else True
+        max_cond = df["eop"] < max_eop if max_eop else True
+        return min_cond & max_cond
+    return cut
+
+
+def make_rich_cut(rich_hypothesis: Union[str, int], min_p: [None, int] = 15000, max_p: [None, int] = 40000) -> Callable:
+    if isinstance(rich_hypothesis, str):
+        rich_hypothesis = constants.rich_hypothesis_map[rich_hypothesis]
+    momentum_condition = make_momentum_cut(min_p, max_p)
+
+    def cut(df: pd.DataFrame) -> pd.Series:
+        hypothesis = df["rich_hypothesis"] == rich_hypothesis
+        return hypothesis & momentum_condition(df)
+    return cut
+
+
+def make_muv3_cut(has_muv3: bool) -> Callable:
+    def cut(df: pd.DataFrame) -> pd.Series:
+        return df["has_muv3"] == has_muv3
+    return cut
+
+
+def make_momentum_cut(min_p: [None, int], max_p: [None, int]) -> Callable:
+    def cut(df: pd.DataFrame) -> pd.Series:
+        min_momentum_range = df["momentum_mag"] > min_p if min_p else True
+        max_momentum_range = df["momentum_mag"] < max_p if max_p else True
+        return min_momentum_range & max_momentum_range
+    return cut
+
 
 ################################################################
 # Other useful functions
