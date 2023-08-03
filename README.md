@@ -35,3 +35,4 @@ Otherwise, you may now follow the instructions in the different notebooks.
 
 # TODO
  - [ ] See if I can provide a documentation for the package (list of available functions)
+ - [ ] Need to provide a way to access the data
