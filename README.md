@@ -25,7 +25,7 @@ This last step (activating the environment) needs to be done in every new termin
 ## Usage
 To run the notebooks, please go inside the repository, activate the environment and run
 ```
-jupyter-lab
+jupyter-lab "00 - START HERE.ipynb" # This automatically starts the first notebook
 ```
 
 You will be redirected to the interactive web application. In the menu on the left, you are now free to select the notebook that you want to run.
