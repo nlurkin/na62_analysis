@@ -186,7 +186,7 @@ void export_flat::Process(int) {
     if(kmu3_sel) FillHisto2("sel_matrix", "autopass", "kmu3", 1);
   }
   Int_t nSel = k3pi_sel + ke3_sel + kmu2_sel + k2pi_sel + kmu3_sel;
-  if((nSel!=1) & !autopass_sel) return; // Allow exactly one positive selection, or autopass
+  if((nSel!=1) && !autopass_sel) return; // Allow exactly o/ne positive selection, or autopass
 
   flat.track1.fExists = false;
   flat.track2.fExists = false;
