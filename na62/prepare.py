@@ -8,28 +8,28 @@ from .hlf import track_eop
 
 
 def import_root_file(filename: str, limit: Union[None, int] = None) -> pd.DataFrame:
-    fd = uproot.open(filename)
-    x = fd.get("export_flat/NA62Flat")
-    data = x.arrays(x.keys(), library="pd", entry_stop=limit).rename(
-        columns={"beam_momentum": "beam_momentum_mag", "beam_directionx": "beam_direction_x", "beam_directiony": "beam_direction_y", "beam_directionz": "beam_direction_z"})
-    data = data.replace([np.inf, -np.inf], np.nan)
-    type_dict = {"beam_momentum_mag": np.float64, "beam_direction_x": np.float64,
-                 "beam_direction_y": np.float64, "beam_direction_z": np.float64}
-    for trackid in range(1, 4):
-        type_dict[f"track{trackid}_momentum_mag"] = np.float64
-        type_dict[f"track{trackid}_direction_x"] = np.float64
-        type_dict[f"track{trackid}_direction_y"] = np.float64
-        type_dict[f"track{trackid}_direction_z"] = np.float64
-        type_dict[f"track{trackid}_direction_am_x"] = np.float64
-        type_dict[f"track{trackid}_direction_am_y"] = np.float64
-        type_dict[f"track{trackid}_direction_am_z"] = np.float64
+    with uproot.open(filename) as fd:
+        x = fd.get("export_flat/NA62Flat")
+        data = x.arrays(x.keys(), library="pd", entry_stop=limit).rename(
+            columns={"beam_momentum": "beam_momentum_mag", "beam_directionx": "beam_direction_x", "beam_directiony": "beam_direction_y", "beam_directionz": "beam_direction_z"})
+        data = data.replace([np.inf, -np.inf], np.nan)
+        type_dict = {"beam_momentum_mag": np.float64, "beam_direction_x": np.float64,
+                    "beam_direction_y": np.float64, "beam_direction_z": np.float64}
+        for trackid in range(1, 4):
+            type_dict[f"track{trackid}_momentum_mag"] = np.float64
+            type_dict[f"track{trackid}_direction_x"] = np.float64
+            type_dict[f"track{trackid}_direction_y"] = np.float64
+            type_dict[f"track{trackid}_direction_z"] = np.float64
+            type_dict[f"track{trackid}_direction_am_x"] = np.float64
+            type_dict[f"track{trackid}_direction_am_y"] = np.float64
+            type_dict[f"track{trackid}_direction_am_z"] = np.float64
 
-    data = data.astype(type_dict)
-    clean_clusters(data)
-    clean_tracks(data)
+        data = data.astype(type_dict)
+        clean_clusters(data)
+        clean_tracks(data)
 
-    compute_derived(data)
-    normalization = sample_normalization(fd, limit)
+        compute_derived(data)
+        normalization = sample_normalization(fd, limit)
     return data, normalization
 
 
