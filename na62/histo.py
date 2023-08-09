@@ -27,7 +27,7 @@ def hist_data(df: pd.Series, *,
 def compute_samples_weights(normalizations_dict: Dict[str, float]):
     normalized_mc = []
     # Normalize each sample relative to its original size and BR
-    for sample in zip(normalizations_dict):
+    for sample in normalizations_dict:
         normalization = normalizations_dict[sample]
         br = constants.kaon_br_map[sample]
         normalized_mc.append(br/normalization)
