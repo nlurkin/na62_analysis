@@ -38,3 +38,23 @@ def compute_samples_weights(normalizations_dict: Dict[str, float]):
     # Normalize each sample with the total MC
     return np.array(normalized_mc) / total_mc
 
+
+def stack_mc(dfs: List[pd.Series], *,
+             bins: Union[int, None] = None, range: Union[int, None] = None,
+             labels: Union[None, List[str]] = None,
+             weights: Union[int, List[int]] = 1,
+             ndata: Union[None, int] = None
+             ):
+
+    if isinstance(weights, int):
+        weights = [weights]*len(dfs)
+
+    hlist = []
+    hweights = []
+    for df, weight in zip(dfs, weights):
+        data_factor = ndata / len(df) if ndata else 1
+        hweights.append(np.ones(shape=df.shape)*weight*data_factor)
+        hlist.append(df)
+
+    plt.hist(hlist, weights=hweights, bins=bins,
+             range=range, stacked=True, label=labels)
