@@ -29,20 +29,24 @@ def import_root_file(filename: str, limit: Union[None, int] = None) -> pd.DataFr
     clean_tracks(data)
 
     compute_derived(data)
-    return data
+    normalization = sample_normalization(fd, limit)
+    return data, normalization
 
 
 def import_root_files(filenames: list[str], total_limit: Union[None, int] = None, file_limit: Union[None, int] = None) -> pd.DataFrame:
     data_list = []
+    total_normalization = 0
     for filename in filenames:
         curr_limit = min(file_limit, total_limit) if file_limit and total_limit else (
             file_limit or total_limit)
-        data_list.append(import_root_file(filename, curr_limit))
+        data, normalization = import_root_file(filename, curr_limit)
+        data_list.append(data)
+        total_normalization += normalization
         if total_limit:
             total_limit -= len(data_list[-1])
             if total_limit <= 0:
                 break
-    return pd.concat(data_list)
+    return pd.concat(data_list), total_normalization
 
 
 def clean_clusters(df: pd.DataFrame) -> None:
@@ -72,3 +76,12 @@ def compute_derived(df: pd.DataFrame) -> None:
 
 def compute_eop(df: pd.DataFrame, trackid: int) -> None:
     df[f"track{trackid}_eop"] = track_eop(df, trackid)
+
+
+def sample_normalization(fd: uproot.ReadOnlyDirectory, limit: Union[None, int] = None):
+    matrix = fd.get("export_flat/sel_matrix")
+    tree = fd.get("export_flat/NA62Flat")
+    total_events = matrix.values()[0][0]
+    sel_events = tree.num_entries
+    read_fraction = 1 if limit is None else limit/sel_events
+    return total_events*read_fraction
