@@ -20,7 +20,7 @@ def hist_data(df: pd.Series, *,
         errors = np.sqrt(h)
     else:
         errors = None
-    plt.errorbar(get_bin_center(bins), h, fmt="r,",
+    plt.errorbar(get_bin_center(bins), h, fmt="k,",
                  yerr=errors, capsize=2, label=label)
 
 
