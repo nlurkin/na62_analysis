@@ -31,6 +31,7 @@ export_flat::export_flat(Core::BaseAnalysis *ba): Analyzer(ba, "export_flat") {
 void export_flat::BranchTrack(TrackStruct &ts, int it){
   myTree->Branch(TString::Format("track%i_exists", it), &(ts.fExists));
   myTree->Branch(TString::Format("track%i_has_muv3", it), &(ts.fHasMUV3));
+  myTree->Branch(TString::Format("track%i_muv3_time", it), &(ts.fMUV3Time));
   myTree->Branch(TString::Format("track%i_rich_hypothesis", it), &(ts.fRICHMLH));
   myTree->Branch(TString::Format("track%i_rich_radius", it), &(ts.fRICHRadius));
   myTree->Branch(TString::Format("track%i_rich_nhits", it), &(ts.fRICHNHits));
@@ -348,10 +349,18 @@ void export_flat::FillTrack(DownstreamTrack &t, TrackStruct &ts, float refTime){
   TVector2 richCenter = t.GetRICHRingCentrePosition();
   ts.fRICHCenterX = richCenter.X();
   ts.fRICHCenterY = richCenter.Y();
+  Double_t dtMin = 9999.;
+  Int_t closest = -1;
   for(int i = 0; i < t.GetNMUV3AssociationRecords(); ++i){
-    FillHisto("muv3tdiff", t.GetMUV3Time(i)-ts.fTime);
+    Double_t dt = t.GetMUV3Time(i)-ts.fTime;
+    FillHisto("muv3tdiff", dt);
+    if (dt < dtMin){
+      dtMin = dt;
+      closest = i;
+    }
   }
-  ts.fHasMUV3 = t.GetNMUV3InTimeAssociationRecords(refTime, 1.5)>0;
+  ts.fHasMUV3 = (closest!=-1);
+  ts.fMUV3Time = ts.fTime + dtMin;
 }
 
 void export_flat::FillCluster(EnergyCluster &c, GammaStruct &ts){

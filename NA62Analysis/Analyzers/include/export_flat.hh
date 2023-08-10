@@ -20,6 +20,7 @@ struct TrackStruct
   Bool_t fHasMUV3 = false;
   Int_t fRICHMLH = -1;
   Int_t fRICHNHits = -1;
+  Int_t fCharge = -99;
   Float_t fRICHRadius = -1;
   Float_t fRICHCenterX = -1;
   Float_t fRICHCenterY = -1;
@@ -32,15 +33,16 @@ struct TrackStruct
   Float_t fPosAfterMagnetX = 0.0;
   Float_t fPosAfterMagnetY = 0.0;
   Float_t fMomentumMag = 0.0;
-  Int_t fCharge = -99;
   Float_t fTime = -999.0;
   Float_t fLKrEnergy = -99.0;
+  Float_t fMUV3Time = -999.;
 
   void Reset() {
       fExists = false;
       fHasMUV3 = false;
       fRICHMLH = -1;
       fRICHNHits = -1;
+      fCharge = -99;
       fRICHRadius = -1;
       fRICHCenterX = -1;
       fRICHCenterY = -1;
@@ -53,9 +55,9 @@ struct TrackStruct
       fPosAfterMagnetX = 0.0;
       fPosAfterMagnetY = 0.0;
       fMomentumMag = 0.0;
-      fCharge = -99;
       fTime = -999.0;
       fLKrEnergy = -99.0;
+      fMUV3Time = -999.;
   }
 };
 struct GammaStruct
