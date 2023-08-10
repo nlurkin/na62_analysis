@@ -12,7 +12,7 @@ It is recommended to run the code in this repository inside a dedicated conda en
 If it is not yet available on your system, please first [install miniconda](https://conda.io/projects/conda/en/stable/user-guide/install/index.html).
 Alternatively, if you really don't want or really can't use a conda installation, the list of python packages that you will need can be found in the [environment.yaml](environment.yml) file.
 
-The repository includes a large datafile to run examples without access to the complete dataset. Obtaining this file from the repository requires the package `git-lsf1` to be installed on your system. Make sure it is available before cloning the repository, or the example ROOT data file will only contain a short text link.
+The repository includes a large datafile to run examples without access to the complete dataset. Obtaining this file from the repository requires the package `git-lsf` to be installed on your system. Make sure it is available before cloning the repository, or the example ROOT data file will only contain a short text link.
 
 Then download the repository, create and activate the conda environment:
 ```
