@@ -7,7 +7,9 @@ from lmfit.models import GaussianModel
 from matplotlib import pyplot as plt
 
 
-def fit_gaussian(data: pd.DataFrame, *, bins: int, display_range: Tuple[int, int], fit_range: Union[Tuple[int, int], None] = None, ax: Union[None, plt.Axes] = None, plot: bool = False) -> lmfit.model.ModelResult:
+def fit_gaussian(data: pd.DataFrame, *, bins: int,
+                 display_range: Tuple[int, int], fit_range: Union[Tuple[int, int], None] = None,
+                 ax: Union[None, plt.Axes] = None, plot: bool = False) -> lmfit.model.ModelResult:
     # Compute the correct range and binning
     if fit_range is None:
         fit_range = display_range
@@ -22,10 +24,15 @@ def fit_gaussian(data: pd.DataFrame, *, bins: int, display_range: Tuple[int, int
     bin_size = bins[1]-bins[0]
     bins_center = np.array([_ + bin_size/2 for _ in bins[:-1]])
 
+    # Discard empty bins
+    non_zero = np.nonzero(h)
+    h = h[non_zero]
+    bins_center = bins_center[non_zero]
+
     # Performing the fit
     gmodel = GaussianModel()
     pars = gmodel.guess(h, x=bins_center)
-    out = gmodel.fit(h, pars, x=bins_center)
+    out = gmodel.fit(h, pars, x=bins_center, weights=1/(np.sqrt(h)))
 
     # Drawing if needed
     if ax is not None:
