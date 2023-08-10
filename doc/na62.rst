@@ -1,9 +1,6 @@
 na62 package
 ============
 
-Submodules
-----------
-
 na62.constants module
 ---------------------
 

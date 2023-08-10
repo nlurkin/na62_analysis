@@ -1,11 +1,14 @@
 .. include:: ../README.md
    :parser: myst_parser.sphinx_
 
+Please browse below the automatically generated documentation for the na62 module
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
 
-   modules
+   self
+   na62
 
 
 Indices and tables
