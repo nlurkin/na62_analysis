@@ -38,3 +38,9 @@ Otherwise, you may now follow the instructions in the different notebooks.
 # TODO
  - [ ] See if I can provide a documentation for the package (list of available functions)
  - [ ] Need to provide a way to access the data
+ - [ ] Commit less MC in the repo
+ - [ ] Add a notebook on timing (maybe with MUV3 time). KTAG? See where timing is not enforced in the selection
+ - [ ] Add a notebook on resolutions:
+   - [ ] Spectrometer with fit in bin
+   - [ ] LKr looking at E vs P for electrons in ke3
+ - [ ] Neutral vertex
