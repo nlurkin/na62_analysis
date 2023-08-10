@@ -103,6 +103,15 @@ void export_flat::StartOfBurstUser() {
 void export_flat::ProcessSpecialTriggerUser(int , unsigned int ) {
 }
 
+void export_flat::Reset() {
+  flat.track1.Reset();
+  flat.track2.Reset();
+  flat.track3.Reset();
+  flat.clus1.Reset();
+  flat.clus2.Reset();
+  flat.fVertex.Reset();
+}
+
 void export_flat::Process(int) {
   fRunNumber = GetRunID();
   fBurstNumber = GetBurstID();
@@ -186,13 +195,7 @@ void export_flat::Process(int) {
     if(kmu3_sel) FillHisto2("sel_matrix", "autopass", "kmu3", 1);
   }
   Int_t nSel = k3pi_sel + ke3_sel + kmu2_sel + k2pi_sel + kmu3_sel;
-  if((nSel!=1) && !autopass_sel) return; // Allow exactly o/ne positive selection, or autopass
-
-  flat.track1.fExists = false;
-  flat.track2.fExists = false;
-  flat.track3.fExists = false;
-  flat.clus1.fExists = false;
-  flat.clus2.fExists = false;
+  if((nSel==0) && !autopass_sel) return; // Allow at least one positive selection, or autopass
 
   BeamParameters *beamPar = BeamParameters::GetInstance();
   flat.fBeam.fMomentum = beamPar->GetBeamMomentum();
@@ -205,6 +208,7 @@ void export_flat::Process(int) {
   flat.fBeam.fPosZ = beamPar->GetBeamZ();
 
   if(autopass_sel) {
+    Reset();
     fEventType = 6;
 
     if(autopassVtx!=-1){
@@ -239,8 +243,10 @@ void export_flat::Process(int) {
     if(goodClusters.size()>=2)
       FillCluster(clusters[goodClusters[1]], flat.clus2);
 
+    myTree->Fill();
   }
-  else if(k3pi_sel) {
+  if(k3pi_sel) {
+    Reset();
     fEventType = 1;
     DownstreamTrack &t1 = dsTracks[vertices3[k3piVertex].GetTrackIndex(0)];
     DownstreamTrack &t2 = dsTracks[vertices3[k3piVertex].GetTrackIndex(1)];
@@ -254,8 +260,10 @@ void export_flat::Process(int) {
     FillTrack(t1, flat.track1, vertexTime);
     FillTrack(t2, flat.track2, vertexTime);
     FillTrack(t3, flat.track3, vertexTime);
+    myTree->Fill();
   }
-  else if(ke3_sel) {
+  if(ke3_sel) {
+    Reset();
     fEventType = 2;
     DownstreamTrack &t1 = dsTracks[ke3Track];
     float trackTime = t1.GetMostPreciseTime();
@@ -268,8 +276,10 @@ void export_flat::Process(int) {
     auto clusters = *GetOutput<std::vector<EnergyCluster>>("EnergyClusterBuilder.Output");
     FillCluster(clusters[ke3Pi0.fClustersID.first], flat.clus1);
     FillCluster(clusters[ke3Pi0.fClustersID.second], flat.clus2);
+    myTree->Fill();
   }
-  else if(kmu2_sel) {
+  if(kmu2_sel) {
+    Reset();
     fEventType = 3;
     DownstreamTrack &t1 = dsTracks[kmu2Track];
     float trackTime = t1.GetMostPreciseTime();
@@ -278,8 +288,10 @@ void export_flat::Process(int) {
     flat.fVertex.fY = t1.GetBeamAxisVertex().Y();
     flat.fVertex.fZ = t1.GetBeamAxisVertex().Z();
     FillTrack(t1, flat.track1, trackTime);
+    myTree->Fill();
   }
-  else if(k2pi_sel) {
+  if(k2pi_sel) {
+    Reset();
     fEventType = 4;
     DownstreamTrack &t1 = dsTracks[k2piTrack];
     float trackTime = t1.GetMostPreciseTime();
@@ -290,8 +302,10 @@ void export_flat::Process(int) {
     FillTrack(t1, flat.track1, trackTime);
     FillCluster(k2piPi0.fEnergyClusters.first, flat.clus1);
     FillCluster(k2piPi0.fEnergyClusters.second, flat.clus2);
+    myTree->Fill();
   }
-  else if(kmu3_sel) {
+  if(kmu3_sel) {
+    Reset();
     fEventType = 5;
     DownstreamTrack &t1 = dsTracks[kmu3Track];
     float trackTime = t1.GetMostPreciseTime();
@@ -304,8 +318,8 @@ void export_flat::Process(int) {
     auto clusters = *GetOutput<std::vector<EnergyCluster>>("EnergyClusterBuilder.Output");
     FillCluster(clusters[kmu3Pi0.fClustersID.first], flat.clus1);
     FillCluster(clusters[kmu3Pi0.fClustersID.second], flat.clus2);
+    myTree->Fill();
   }
-  myTree->Fill();
 }
 
 void export_flat::FillTrack(DownstreamTrack &t, TrackStruct &ts, float refTime){

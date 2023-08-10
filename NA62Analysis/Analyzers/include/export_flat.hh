@@ -35,6 +35,28 @@ struct TrackStruct
   Int_t fCharge = -99;
   Float_t fTime = -999.0;
   Float_t fLKrEnergy = -99.0;
+
+  void Reset() {
+      fExists = false;
+      fHasMUV3 = false;
+      fRICHMLH = -1;
+      fRICHNHits = -1;
+      fRICHRadius = -1;
+      fRICHCenterX = -1;
+      fRICHCenterY = -1;
+      fDirectionX = 0.0;
+      fDirectionY = 0.0;
+      fDirectionZ = 0.0;
+      fDirectionAfterMagnetX = 0.0;
+      fDirectionAfterMagnetY = 0.0;
+      fDirectionAfterMagnetZ = 0.0;
+      fPosAfterMagnetX = 0.0;
+      fPosAfterMagnetY = 0.0;
+      fMomentumMag = 0.0;
+      fCharge = -99;
+      fTime = -999.0;
+      fLKrEnergy = -99.0;
+  }
 };
 struct GammaStruct
 {
@@ -43,6 +65,14 @@ struct GammaStruct
   Float_t fPositionY = 0.0;
   Float_t fLKrEnergy = 0.0;
   Float_t fTime = -999.0;
+
+  void Reset() {
+    fExists = false;
+    fPositionX = 0.0;
+    fPositionY = 0.0;
+    fLKrEnergy = 0.0;
+    fTime = -999.0;
+  }
 };
 struct BeamStruct
 {
@@ -59,6 +89,12 @@ struct VertexStruct
   Float_t fX = 0.0;
   Float_t fY = 0.0;
   Float_t fZ = 0.0;
+
+  void Reset() {
+    fX = 0.0;
+    fY = 0.0;
+    fZ = 0.0;
+  }
 };
 
 struct FlatStruct
@@ -93,6 +129,7 @@ protected:
   void BranchCluster(GammaStruct &ts, int it);
   void FillTrack(DownstreamTrack &t, TrackStruct &ts, float refTime);
   void FillCluster(EnergyCluster &c, GammaStruct &ts);
+  void Reset();
 
   Int_t bestInTimeVertices(std::vector<SpectrometerTrackVertex> &vtc);
   std::vector<int> goodDSTracks(std::vector<DownstreamTrack> &ds);
