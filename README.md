@@ -44,3 +44,5 @@ Otherwise, you may now follow the instructions in the different notebooks.
    - [ ] Spectrometer with fit in bin
    - [ ] LKr looking at E vs P for electrons in ke3
  - [ ] Neutral vertex
+ - [ ] Add KTAG time in data structure to check time resolution of spectrometer
+ - [ ] Add theoretical propagation through spectrometer magnet
