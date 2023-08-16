@@ -260,6 +260,22 @@ def make_missing_mass_sqr_cut(min_mm2: Union[None, float], max_mm2: Union[None, 
     return cut
 
 
+def make_exists_cut(exists: Union[None, List[str]], not_exists: Union[None, List[str]]) -> Callable:
+    if not exists:
+        exists = []
+    if not not_exists:
+        not_exists = []
+
+    def cut(df: pd.DataFrame) -> pd.Series:
+        this_cut = pd.Series(True, index=df.index, dtype=bool)
+        for name in exists:
+            this_cut &= df[name]
+        for name in not_exists:
+            this_cut &= ~df[name]
+        return this_cut
+    return cut
+
+
 ################################################################
 # Other useful functions
 ################################################################
