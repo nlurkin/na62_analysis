@@ -181,16 +181,27 @@ def make_rich_cut(rich_hypothesis: Union[str, int], min_p: Union[None, int] = 15
     return cut
 
 
-def make_muv3_cut(has_muv3: bool) -> Callable:
+def make_muv3_cut(has_muv3: bool, which_track: Union[None, str] = None) -> Callable:
+    if which_track is None:
+        which_track = ""
+    else:
+        which_track = f"{which_track}_"
+
     def cut(df: pd.DataFrame) -> pd.Series:
-        return df["has_muv3"] == has_muv3
+        return df[f"{which_track}has_muv3"] == has_muv3
     return cut
 
 
-def make_momentum_cut(min_p: Union[None, int], max_p: Union[None, int]) -> Callable:
+def make_momentum_cut(min_p: Union[None, int], max_p: Union[None, int], which_object: Union[None, str] = None) -> Callable:
+    if which_object is None:
+        which_object = ""
+    else:
+        which_object = f"{which_object}_"
+
     def cut(df: pd.DataFrame) -> pd.Series:
-        min_momentum_range = df["momentum_mag"] > min_p if min_p else True
-        max_momentum_range = df["momentum_mag"] < max_p if max_p else True
+        serie_cut = df[f"{which_object}momentum_mag"]
+        min_momentum_range = serie_cut > min_p if min_p else True
+        max_momentum_range = serie_cut < max_p if max_p else True
         return min_momentum_range & max_momentum_range
     return cut
 
