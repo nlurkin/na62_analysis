@@ -194,30 +194,32 @@ def identify(df: pd.DataFrame, definitions: Dict[str, List[Callable]]) -> pd.Dat
     return ptype
 
 
-def make_eop_cut(min_eop: Union[float, None], max_eop: Union[float, None]) -> Callable:
+def make_eop_cut(min_eop: Union[float, None], max_eop: Union[float, None], which_track: Union[None, str] = None) -> Callable:
+    which_track = _select_object(which_track)
+
     def cut(df: pd.DataFrame) -> pd.Series():
-        min_cond = df["eop"] > min_eop if min_eop else True
-        max_cond = df["eop"] < max_eop if max_eop else True
+        min_cond = df[f"{which_track}eop"] > min_eop if min_eop else True
+        max_cond = df[f"{which_track}eop"] < max_eop if max_eop else True
         return min_cond & max_cond
     return cut
 
 
-def make_rich_cut(rich_hypothesis: Union[str, int], min_p: Union[None, int] = 15000, max_p: Union[None, int] = 40000) -> Callable:
+def make_rich_cut(rich_hypothesis: Union[str, int],
+                  min_p: Union[None, int] = 15000, max_p: Union[None, int] = 40000,
+                  which_track: Union[None, str] = None) -> Callable:
     if isinstance(rich_hypothesis, str):
         rich_hypothesis = constants.rich_hypothesis_map[rich_hypothesis]
     momentum_condition = make_momentum_cut(min_p, max_p)
+    which_track = _select_object(which_track)
 
     def cut(df: pd.DataFrame) -> pd.Series:
-        hypothesis = df["rich_hypothesis"] == rich_hypothesis
+        hypothesis = df[f"{which_track}rich_hypothesis"] == rich_hypothesis
         return hypothesis & momentum_condition(df)
     return cut
 
 
 def make_muv3_cut(has_muv3: bool, which_track: Union[None, str] = None) -> Callable:
-    if which_track is None:
-        which_track = ""
-    else:
-        which_track = f"{which_track}_"
+    which_track = _select_object(which_track)
 
     def cut(df: pd.DataFrame) -> pd.Series:
         return df[f"{which_track}has_muv3"] == has_muv3
@@ -225,10 +227,7 @@ def make_muv3_cut(has_muv3: bool, which_track: Union[None, str] = None) -> Calla
 
 
 def make_momentum_cut(min_p: Union[None, int], max_p: Union[None, int], which_object: Union[None, str] = None) -> Callable:
-    if which_object is None:
-        which_object = ""
-    else:
-        which_object = f"{which_object}_"
+    which_object = _select_object(which_object)
 
     def cut(df: Union[pd.DataFrame, pd.Series]) -> pd.Series:
         if isinstance(df, pd.DataFrame):
@@ -312,3 +311,14 @@ def ring_radius(p, mass):
     cost = (c*E)/(n*p)
     # Transform into radius using the focal length
     return np.arccos(cost) * f
+
+
+################################################################
+# Internal functions
+################################################################
+
+def _select_object(which_object: Union[None, str]):
+    if which_object is None:
+        return ""
+    else:
+        return f"{which_object}_"
