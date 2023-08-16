@@ -12,7 +12,7 @@ class TestKinematics:
     inv_mass_fuction = hlf.invariant_mass
     total_momentum_function = hlf.total_momentum
     total_track_momentum_function = hlf.total_track_momentum
-    missing_mass_sqr_function = hlf.missing_mass_sqr
+    missing_mass_sqr_function = hlf.missing_mass_sqr_from_4vector
     missing_mass_function = hlf.missing_mass
     propagation_function = hlf.propagate
 
@@ -352,7 +352,7 @@ class TestKinematics:
 
         try:
             self.test_missing_mass_sqr(
-                beam, t1, t2, t3, hlf.missing_mass_sqr(beam, [t1, t2, t3]))
+                beam, t1, t2, t3, hlf.missing_mass_sqr_from_4vector(beam, [t1, t2, t3]))
         except (AssertionError, TypeError):
             print(
                 "[ERROR] Missing mass squared function does not return the expected values")
