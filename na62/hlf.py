@@ -294,10 +294,10 @@ def track_eop(df: pd.DataFrame, trackid: int) -> pd.Series:
     return t["lkr_energy"]/t["momentum_mag"]
 
 
-def set_mass(df: pd.DataFrame, mass: float) -> pd.DataFrame:
-    df["mass"] = mass
-    df["energy"] = np.sqrt(mass**2 + df["momentum_mag"]**2)
-    return df
+def set_mass(momentum: pd.DataFrame, mass: float) -> pd.DataFrame:
+    momentum["mass"] = mass
+    momentum["energy"] = np.sqrt(mass**2 + momentum["momentum_mag"]**2)
+    return momentum
 
 
 def ring_radius(p: Union[float, np.array, pd.Series], mass: float) -> Union[float, np.array, pd.Series]:
