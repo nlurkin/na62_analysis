@@ -101,7 +101,14 @@ def total_track_momentum(df: pd.DataFrame) -> pd.Series:
     return three_vector_mag(three_vectors_sum([t1, t2, t3]))
 
 
-def missing_mass_sqr(beam: pd.DataFrame, momenta: List[pd.DataFrame]) -> pd.Series:
+def missing_mass_sqr(df: pd.DataFrame, momenta_or_masses: Union[Dict[str, float], List[pd.DataFrame]]) -> pd.Series:
+    if isinstance(momenta_or_masses, dict):
+        return missing_mass_sqr_from_fulldf(df, momenta_or_masses)
+    else:
+        return missing_mass_sqr_from_4vector(df, momenta_or_masses)
+
+
+def missing_mass_sqr_from_4vector(beam: pd.DataFrame, momenta: List[pd.DataFrame]) -> pd.Series:
     momenta_sum = four_vectors_sum(momenta)
     return four_vector_mag2(four_vectors_sum([beam, four_vector_invert(momenta_sum)]))
 
