@@ -5,7 +5,8 @@ import numpy as np
 import pandas as pd
 
 from . import constants
-from .extract import cluster, photon_momentum, track
+from .extract import cluster, photon_momentum, track, get_beam
+
 
 ################################################################
 # Three-vector operations
