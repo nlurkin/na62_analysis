@@ -128,6 +128,12 @@ def propagate(track: pd.DataFrame, z_final: int, position_field_name: str = "pos
 # Function to define and apply cuts
 ################################################################
 
+def n(fun: Callable) -> Callable:
+    def not_cut(df: pd.DataFrame) -> pd.Series:
+        return ~fun(df)
+    return not_cut
+
+
 def combine_cuts(cuts: List[Callable]) -> Callable:
     '''
     Combine a list of cuts into a single Callable
