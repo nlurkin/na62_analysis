@@ -198,8 +198,11 @@ def make_momentum_cut(min_p: Union[None, int], max_p: Union[None, int], which_ob
     else:
         which_object = f"{which_object}_"
 
-    def cut(df: pd.DataFrame) -> pd.Series:
-        serie_cut = df[f"{which_object}momentum_mag"]
+    def cut(df: Union[pd.DataFrame, pd.Series]) -> pd.Series:
+        if isinstance(df, pd.DataFrame):
+            serie_cut = df[f"{which_object}momentum_mag"]
+        else:
+            serie_cut = df
         min_momentum_range = serie_cut > min_p if min_p else True
         max_momentum_range = serie_cut < max_p if max_p else True
         return min_momentum_range & max_momentum_range
