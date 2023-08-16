@@ -300,7 +300,7 @@ def set_mass(df: pd.DataFrame, mass: float) -> pd.DataFrame:
     return df
 
 
-def ring_radius(p, mass):
+def ring_radius(p: Union[float, np.array, pd.Series], mass: float) -> Union[float, np.array, pd.Series]:
     n = 1.000063  # Refractive index in NA62
     f = 17*1000  # Focal lenght in NA62 (17m)
     c = 1        # Light speed in natural units
