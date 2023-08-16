@@ -164,7 +164,7 @@ def make_eop_cut(min_eop: Union[float, None], max_eop: Union[float, None]) -> Ca
     return cut
 
 
-def make_rich_cut(rich_hypothesis: Union[str, int], min_p: [None, int] = 15000, max_p: [None, int] = 40000) -> Callable:
+def make_rich_cut(rich_hypothesis: Union[str, int], min_p: Union[None, int] = 15000, max_p: Union[None, int] = 40000) -> Callable:
     if isinstance(rich_hypothesis, str):
         rich_hypothesis = constants.rich_hypothesis_map[rich_hypothesis]
     momentum_condition = make_momentum_cut(min_p, max_p)
@@ -181,7 +181,7 @@ def make_muv3_cut(has_muv3: bool) -> Callable:
     return cut
 
 
-def make_momentum_cut(min_p: [None, int], max_p: [None, int]) -> Callable:
+def make_momentum_cut(min_p: Union[None, int], max_p: Union[None, int]) -> Callable:
     def cut(df: pd.DataFrame) -> pd.Series:
         min_momentum_range = df["momentum_mag"] > min_p if min_p else True
         max_momentum_range = df["momentum_mag"] < max_p if max_p else True
