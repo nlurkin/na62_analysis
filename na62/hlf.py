@@ -240,6 +240,26 @@ def make_momentum_cut(min_p: Union[None, int], max_p: Union[None, int], which_ob
     return cut
 
 
+def make_total_momentum_cut(min_p: Union[None, int], max_p: Union[None, int] = None) -> Callable:
+    momentum_condition = make_momentum_cut(min_p, max_p)
+
+    def cut(df: pd.DataFrame) -> pd.Series:
+        p_tot = total_momentum(df)
+        return momentum_condition(p_tot)
+    return cut
+
+
+def make_missing_mass_sqr_cut(min_mm2: Union[None, float], max_mm2: Union[None, float], mass_assignments: Dict[str, float]) -> Callable:
+    def cut(df: pd.DataFrame) -> pd.Series:
+        mmass_sqr = missing_mass_sqr(df, mass_assignments)
+
+        min_mmass_sqr = mmass_sqr > min_mm2 if min_mm2 else True
+        max_mmass_sqr = mmass_sqr < max_mm2 if max_mm2 else True
+
+        return min_mmass_sqr & max_mmass_sqr
+    return cut
+
+
 ################################################################
 # Other useful functions
 ################################################################
