@@ -106,6 +106,30 @@ def missing_mass_sqr(beam: pd.DataFrame, momenta: List[pd.DataFrame]) -> pd.Seri
     return four_vector_mag2(four_vectors_sum([beam, four_vector_invert(momenta_sum)]))
 
 
+def missing_mass_sqr_from_fulldf(df: pd.DataFrame, mass_assignments: Dict[str, float]) -> pd.Series:
+    track_masses = {}
+    cluster_masses = {}
+    for trackID in np.arange(1, 4):
+        if f"track{trackID}" in mass_assignments:
+            track_masses[trackID] = mass_assignments[f"track{trackID}"]
+    for clusterID in np.arange(1, 3):
+        if f"cluster{clusterID}" in mass_assignments:
+            cluster_masses[clusterID] = mass_assignments[f"cluster{clusterID}"]
+
+    # Extract the beam
+    beam = set_mass(get_beam(df), constants.kaon_charged_mass)
+
+    # Extract the tracks and photons based on mass_assignments
+    objects = []
+    for trackID in track_masses:
+        objects.append(set_mass(track(df, trackID), track_masses[trackID]))
+    for clusterID in cluster_masses:
+        objects.append(set_mass(photon_momentum(
+            df, clusterID), cluster_masses[clusterID]))
+
+    return missing_mass_sqr_from_4vector(beam, objects)
+
+
 def missing_mass(beam: pd.DataFrame, momenta: List[pd.DataFrame]) -> pd.Series:
     momenta_sum = four_vectors_sum(momenta)
     return four_vector_mag(four_vectors_sum([beam, four_vector_invert(momenta_sum)]))
