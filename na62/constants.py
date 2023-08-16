@@ -14,4 +14,10 @@ kaon_br_map = {"k3pi": 0.05583, "ke3": 0.0507, "kmu2": 0.6356, "k2pi": 0.2067, "
 
 # Definitions
 rich_hypothesis_map = {"bckg": 0, "e": 1, "mu": 2, "pi": 3, "k": 4, "mult": 99}
+"""
+Human-readable string to conventional integer value used in dataframe for 'rich_hypothesis' variable
+"""
 event_type_map = {"k3pi": 1, "ke3": 2, "kmu2": 3, "k2pi": 4, "kmu3": 5, "background": 6}
+"""
+Human-readable string to conventional integer value used in dataframe for 'event_type' variable
+"""

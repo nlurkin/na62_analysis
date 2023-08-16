@@ -8,6 +8,7 @@ na62.constants module
    :members:
    :undoc-members:
    :show-inheritance:
+   :special-members:
 
 na62.extract module
 -------------------
