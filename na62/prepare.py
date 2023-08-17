@@ -8,6 +8,13 @@ from .hlf import track_eop
 
 
 def import_root_file(filename: str, limit: Union[None, int] = None) -> pd.DataFrame:
+    """Read a ROOT file and import the NA62Flat TTree into a pandas DataFrame. Some pre-processing is performed on the dataframe
+    to clean it and pre-compute some derived values.
+
+    :param filename: Path to the ROOT file to load
+    :param limit: Maximum number of events to load. If None, load the complete TTree. (default None)
+    :return: Full dataframe
+    """
     with uproot.open(filename) as fd:
         x = fd.get("export_flat/NA62Flat")
         data = x.arrays(x.keys(), library="pd", entry_stop=limit).rename(
@@ -34,6 +41,15 @@ def import_root_file(filename: str, limit: Union[None, int] = None) -> pd.DataFr
 
 
 def import_root_files(filenames: list[str], total_limit: Union[None, int] = None, file_limit: Union[None, int] = None) -> pd.DataFrame:
+    """Read a list of ROOT file and import the NA62Flat TTree into a single, merged, pandas DataFrame. Some pre-processing
+    is performed on the dataframe to clean it and pre-compute some derived values.
+
+    :param filenames: List of paths to ROOT files to load
+    :param total_limit: Absolute maximum number of events to load. If None, no limit is applied. (default None)
+    :param file_limit: Maximum number of events to load for each file. If None, no limit is applied.
+        This can be combined with the 'total_limit' parameter. (default None)
+    :return: Full dataframe
+    """
     data_list = []
     total_normalization = 0
     for filename in filenames:
@@ -50,12 +66,21 @@ def import_root_files(filenames: list[str], total_limit: Union[None, int] = None
 
 
 def clean_clusters(df: pd.DataFrame) -> None:
+    """Clean the clusters in the Full dataframe. The variables are set to NaN for non-existing clusters
+
+    :param df: Full dataframe
+    """
     for cname in ["cluster1", "cluster2"]:
         df.loc[~df[f"{cname}_exists"], [f"{cname}_lkr_energy",
                                         f"{cname}_position_x", f"{cname}_position_y", f"{cname}_time"]] = np.nan
 
 
 def clean_tracks(df: pd.DataFrame) -> None:
+    """Clean the tracks in the Full dataframe. The variables are set to NaN (float variables),
+    -99 (integer variables), False (boolean variables) for non-existing tracks.
+
+    :param df: Full dataframe
+    """
     for cname in ["track1", "track2", "track3"]:
         df.loc[~df[f"{cname}_exists"], [f"{cname}_rich_radius", f"{cname}_rich_center_x", f"{cname}_rich_center_y", f"{cname}_direction_x",
                                         f"{cname}_direction_y", f"{cname}_direction_z", f"{cname}_momentum_mag", f"{cname}_time", f"{cname}_lkr_energy"]] = np.nan
@@ -65,6 +90,10 @@ def clean_tracks(df: pd.DataFrame) -> None:
 
 
 def compute_derived(df: pd.DataFrame) -> None:
+    """Compute some derived values from the Full dataframe (track E/p and Z position after magnet).
+
+    :param df: Full dataframe
+    """
     compute_eop(df, 1)
     compute_eop(df, 2)
     compute_eop(df, 3)
@@ -75,10 +104,22 @@ def compute_derived(df: pd.DataFrame) -> None:
 
 
 def compute_eop(df: pd.DataFrame, trackid: int) -> None:
+    """Compute and set the E/p for a track in the Full dataframe.
+
+    :param df: Full dataframe
+    :param trackid: ID of the track to compute
+    """
     df[f"track{trackid}_eop"] = track_eop(df, trackid)
 
 
 def sample_normalization(fd: uproot.ReadOnlyDirectory, limit: Union[None, int] = None):
+    """Return the normalization for the provided ROOT file. The normalization is the total number
+    of events in the sample, corrected by the fraction of events extracted from the file.
+
+    :param fd: ROOT file descriptor
+    :param limit: Maximum number of events loaded in the file. If None, assume all the events were loaded. (default None)
+    :return: Sample normalization
+    """
     matrix = fd.get("export_flat/sel_matrix")
     tree = fd.get("export_flat/NA62Flat")
     total_events = matrix.values()[0][0]
