@@ -1,4 +1,4 @@
-from typing import Tuple, Union
+from typing import Tuple, Union, Callable
 
 import lmfit
 import numpy as np
@@ -7,9 +7,17 @@ from lmfit.models import GaussianModel
 from matplotlib import pyplot as plt
 
 
-def fit_gaussian(data: pd.DataFrame, *, bins: int,
-                 display_range: Tuple[int, int], fit_range: Union[Tuple[int, int], None] = None,
-                 ax: Union[None, plt.Axes] = None, plot: bool = False) -> lmfit.model.ModelResult:
+def gaussian_wrapper(h: tuple[np.ndarray, np.ndarray], bins_center: np.ndarray) -> lmfit.model.ModelResult:
+    gmodel = GaussianModel()
+    pars = gmodel.guess(h, x=bins_center)
+    return gmodel.fit(h, pars, x=bins_center, weights=1/(np.sqrt(h)))
+
+
+def perform_fit(data: pd.DataFrame, *, bins: int,
+                display_range: Tuple[int, int], fit_range: Union[Tuple[int, int], None] = None,
+                ax: Union[None, plt.Axes] = None, plot: bool = False,
+                model_wrapper: Union[Callable, None] = None) -> lmfit.model.ModelResult:
+
     # Compute the correct range and binning
     if fit_range is None:
         fit_range = display_range
@@ -30,9 +38,9 @@ def fit_gaussian(data: pd.DataFrame, *, bins: int,
     bins_center = bins_center[non_zero]
 
     # Performing the fit
-    gmodel = GaussianModel()
-    pars = gmodel.guess(h, x=bins_center)
-    out = gmodel.fit(h, pars, x=bins_center, weights=1/(np.sqrt(h)))
+    if model_wrapper is None:
+        model_wrapper = gaussian_wrapper
+    out = model_wrapper(h, bins_center)
 
     # Drawing if needed
     if ax is not None:
