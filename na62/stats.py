@@ -38,7 +38,7 @@ def gaussian2_wrapper(h: tuple[np.ndarray, np.ndarray], bins_center: np.ndarray)
 
 def perform_fit(data: Union[pd.Series, np.ndarray], *, bins: int,
                 display_range: Tuple[int, int], fit_range: Union[Tuple[int, int], None] = None,
-                ax: Union[None, plt.Axes] = None, plot: bool = False,
+                ax: Union[None, plt.Axes] = None, plot: bool = False, fit_label: str = "Fit",
                 model_wrapper: Union[Callable, None] = None) -> lmfit.model.ModelResult:
     """
     Configure and perform a fit of the input data according to the chosen model. The input data are raw
@@ -52,6 +52,7 @@ def perform_fit(data: Union[pd.Series, np.ndarray], *, bins: int,
     :param ax: Axes on which to draw the histogram. If specified, automatically set 'plot = True'.
         If plot is True and ax is not specified, a new figure is created. (default None)
     :param plot: Whether to draw the histogram and results.
+    :param fit_label: Label for the fit in the legend, if plotted. (default 'Fit')
     :param model_wrapper: Wrapper function defining the model to use for the fitting. (default None)
     :return: Fit result as a ModelResult from lmfit
     """
@@ -88,6 +89,6 @@ def perform_fit(data: Union[pd.Series, np.ndarray], *, bins: int,
         if ax is None:
             ax = plt.figure().gca()
         data.hist(bins=100, range=display_range, ax=ax)
-        ax.plot(bins_center, out.best_fit, "-", label="Fit")
+        ax.plot(bins_center, out.best_fit, "-", label=fit_label)
         ax.legend()
     return out
