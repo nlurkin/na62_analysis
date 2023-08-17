@@ -533,7 +533,7 @@ def ring_radius(p: Union[float, np.array, pd.Series], mass: float) -> Union[floa
     :param p: Momentum of the particle.
         Can be a numpy array or a pandas.Series to perform the computation directly on a range of momenta.
     :param mass: Mass of the particle.
-    :return Radius as a function of the momenta passed in input (same format as the input param 'p')
+    :return: Radius as a function of the momenta passed in input (same format as the input param 'p')
     """
 
     n = 1.000063  # Refractive index in NA62
