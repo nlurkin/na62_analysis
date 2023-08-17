@@ -8,15 +8,36 @@ from matplotlib import pyplot as plt
 
 
 def gaussian_wrapper(h: tuple[np.ndarray, np.ndarray], bins_center: np.ndarray) -> lmfit.model.ModelResult:
+    """Fits a single Gaussian
+
+    :param h: Histogram to fit
+    :param bins_center: Histogram bin centers
+    :return: Fit result
+    """
     gmodel = GaussianModel()
     pars = gmodel.guess(h, x=bins_center)
     return gmodel.fit(h, pars, x=bins_center, weights=1/(np.sqrt(h)))
 
 
-def perform_fit(data: pd.DataFrame, *, bins: int,
+def perform_fit(data: Union[pd.Series, np.ndarray], *, bins: int,
                 display_range: Tuple[int, int], fit_range: Union[Tuple[int, int], None] = None,
                 ax: Union[None, plt.Axes] = None, plot: bool = False,
                 model_wrapper: Union[Callable, None] = None) -> lmfit.model.ModelResult:
+    """
+    Configure and perform a fit of the input data according to the chosen model. The input data are raw
+    data that are first binned, then the fit is performed on the histogram. The histogram and fit result
+    can optionally be plotted.
+
+    :param data: Data to histogram and fit (array format, either numpy array or pandas series)
+    :param bins: Number of bins for the histogram
+    :param display_range: Complete range of the histogram
+    :param fit_range: Restricted range for fitting. If None, uses the same values as the display_range. (default None)
+    :param ax: Axes on which to draw the histogram. If specified, automatically set 'plot = True'.
+        If plot is True and ax is not specified, a new figure is created. (default None)
+    :param plot: Whether to draw the histogram and results.
+    :param model_wrapper: Wrapper function defining the model to use for the fitting. (default None)
+    :return: Fit result as a ModelResult from lmfit
+    """
 
     # Compute the correct range and binning
     if fit_range is None:
