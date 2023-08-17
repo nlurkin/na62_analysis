@@ -8,7 +8,7 @@ from matplotlib import pyplot as plt
 
 
 def gaussian_wrapper(h: tuple[np.ndarray, np.ndarray], bins_center: np.ndarray) -> lmfit.model.ModelResult:
-    """Fits a single Gaussian
+    """Fit a single Gaussian
 
     :param h: Histogram to fit
     :param bins_center: Histogram bin centers
@@ -17,6 +17,23 @@ def gaussian_wrapper(h: tuple[np.ndarray, np.ndarray], bins_center: np.ndarray) 
     gmodel = GaussianModel()
     pars = gmodel.guess(h, x=bins_center)
     return gmodel.fit(h, pars, x=bins_center, weights=1/(np.sqrt(h)))
+
+
+def gaussian2_wrapper(h: tuple[np.ndarray, np.ndarray], bins_center: np.ndarray) -> lmfit.model.ModelResult:
+    """Fit a double Gaussian, assuming similar mean but larger sigma for the second Gaussian
+
+    :param h: Histogram to fit
+    :param bins_center: Histogram bin centers
+    :return: Fit result
+    """
+    gmodel = GaussianModel() + GaussianModel(prefix="g2_")
+    pars = GaussianModel().guess(h, x=bins_center)
+    # For the parameters of the second Gaussian, start with the same values as the first
+    pars2 = GaussianModel(prefix="g2_").guess(h, x=bins_center)
+    # Then widen it (else the fit will converge on two identical Gaussians)
+    pars2["g2_sigma"].value *= 5
+    pars2["g2_amplitude"].value /= 5
+    return gmodel.fit(h, pars+pars2, x=bins_center, weights=1/(np.sqrt(h)))
 
 
 def perform_fit(data: Union[pd.Series, np.ndarray], *, bins: int,
