@@ -5,8 +5,7 @@ import numpy as np
 import pandas as pd
 
 from . import constants
-from .extract import cluster, photon_momentum, track, get_beam
-
+from .extract import cluster, get_beam, photon_momentum, track
 
 ################################################################
 # Three-vector operations
@@ -130,6 +129,26 @@ def four_vector_invert(vector: pd.DataFrame) -> pd.DataFrame:
 ################################################################
 # Kinematic functions
 ################################################################
+def _mass_assignment_to_objects(df: pd.DataFrame, mass_assignments: Dict[str, float]) -> List[pd.DataFrame]:
+    track_masses = {}
+    cluster_masses = {}
+    for trackID in np.arange(1, 4):
+        if f"track{trackID}" in mass_assignments:
+            track_masses[trackID] = mass_assignments[f"track{trackID}"]
+    for clusterID in np.arange(1, 3):
+        if f"cluster{clusterID}" in mass_assignments:
+            cluster_masses[clusterID] = mass_assignments[f"cluster{clusterID}"]
+
+    # Extract the tracks and photons based on mass_assignments
+    objects = []
+    for trackID in track_masses:
+        objects.append(set_mass(track(df, trackID), track_masses[trackID]))
+    for clusterID in cluster_masses:
+        objects.append(set_mass(photon_momentum(
+            df, clusterID), cluster_masses[clusterID]))
+
+    return objects
+
 
 def invariant_mass(momenta: List[pd.DataFrame]) -> pd.Series:
     """
@@ -214,26 +233,10 @@ def missing_mass_sqr_from_fulldf(df: pd.DataFrame, mass_assignments: Dict[str, f
     :return: Series representing the missing mass squared
     """
 
-    track_masses = {}
-    cluster_masses = {}
-    for trackID in np.arange(1, 4):
-        if f"track{trackID}" in mass_assignments:
-            track_masses[trackID] = mass_assignments[f"track{trackID}"]
-    for clusterID in np.arange(1, 3):
-        if f"cluster{clusterID}" in mass_assignments:
-            cluster_masses[clusterID] = mass_assignments[f"cluster{clusterID}"]
-
     # Extract the beam
     beam = set_mass(get_beam(df), constants.kaon_charged_mass)
 
-    # Extract the tracks and photons based on mass_assignments
-    objects = []
-    for trackID in track_masses:
-        objects.append(set_mass(track(df, trackID), track_masses[trackID]))
-    for clusterID in cluster_masses:
-        objects.append(set_mass(photon_momentum(
-            df, clusterID), cluster_masses[clusterID]))
-
+    objects = _mass_assignment_to_objects(df, mass_assignments)
     return missing_mass_sqr_from_4vector(beam, objects)
 
 
