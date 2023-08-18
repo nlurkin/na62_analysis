@@ -9,7 +9,7 @@ from .test_vectors import Test_FourVector
 
 
 class TestKinematics:
-    inv_mass_fuction = hlf.invariant_mass
+    inv_mass_fuction = hlf.invariant_mass_4vector
     total_momentum_function = hlf.total_momentum
     total_track_momentum_function = hlf.total_track_momentum
     missing_mass_sqr_function = hlf.missing_mass_sqr_from_4vector
@@ -310,7 +310,7 @@ class TestKinematics:
 
         try:
             self.test_invariant_mass(
-                t1, t2, t3, hlf.invariant_mass([t1, t2, t3]))
+                t1, t2, t3, hlf.invariant_mass_4vector([t1, t2, t3]))
         except (AssertionError, TypeError):
             print("[ERROR] Invariant mass function does not return the expected values")
             failed = True
