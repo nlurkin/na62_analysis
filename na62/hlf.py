@@ -487,6 +487,17 @@ def make_missing_mass_sqr_cut(min_mm2: Union[None, float], max_mm2: Union[None, 
     return cut
 
 
+def make_invariant_mass_cut(min_mass: Union[None, float], max_mass: Union[None, float], mass_assignments: Dict[str, float]) -> Callable:
+    def cut(df: pd.DataFrame) -> pd.Series:
+        inv_mass = invariant_mass(df, mass_assignments)
+
+        min_inv_mass = inv_mass > min_mass if min_mass else True
+        max_inv_mass = inv_mass < max_mass if max_mass else True
+
+        return min_inv_mass & max_inv_mass
+    return cut
+
+
 def make_exists_cut(exists: Union[None, List[str]], not_exists: Union[None, List[str]]) -> Callable:
     """
     Create a cut to select only events where some objects (tracks or clusters) exist. The cut can be applied to a full dataframe.
