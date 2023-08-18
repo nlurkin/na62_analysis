@@ -150,7 +150,22 @@ def _mass_assignment_to_objects(df: pd.DataFrame, mass_assignments: Dict[str, fl
     return objects
 
 
-def invariant_mass(momenta: List[pd.DataFrame]) -> pd.Series:
+def invariant_mass(df_or_momenta: Union[pd.DataFrame, List[pd.DataFrame]], mass_assignments: Union[Dict[str, float], None]) -> pd.Series:
+    """
+    Compute the invariant mass. This function dispatches to :func:`invariant_mass_4vector` or
+    :func:`invariant_mass_fulldf` based on the type of the 'mass_assignments' input.
+
+    :param df_or_momenta: Full dataframe or list of 4-vector dataframes
+    :return: Series representing the invariant mass of the input
+    """
+
+    if mass_assignments is not None:
+        return invariant_mass_fulldf(df_or_momenta, df_or_momenta)
+    else:
+        return invariant_mass_4vector(df_or_momenta)
+
+
+def invariant_mass_4vector(momenta: List[pd.DataFrame]) -> pd.Series:
     """
     Compute the invariant mass of a list of momenta (4-vectors)
 
@@ -160,6 +175,20 @@ def invariant_mass(momenta: List[pd.DataFrame]) -> pd.Series:
 
     total_four_momentum = four_vectors_sum(momenta)
     return four_vector_mag(total_four_momentum)
+
+
+def invariant_mass_fulldf(df: pd.DataFrame, mass_assignments: Dict[str, float]) -> pd.Series:
+    """Compute the invariant mass of a Full dataframe based on the specified mass assignment.
+
+    :param df: Full dataframe
+    :param mass_assignments: Dictionary of mass assignments. Each element of the dictionary should be a
+        one of 'track{i}' where 'i' goes from 1 to 3, or 'cluster{j}' where 'j' goes from 1 to 2, and the
+        value should be the mass to associate to the object. Omit objects that should not be included in
+        the computation
+    :return: Series representing the invariant mass
+    """
+    objects = _mass_assignment_to_objects(df, mass_assignments)
+    return invariant_mass_4vector(objects)
 
 
 def total_momentum(df: pd.DataFrame) -> pd.Series:
