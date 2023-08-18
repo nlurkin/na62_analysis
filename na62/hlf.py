@@ -160,7 +160,7 @@ def invariant_mass(df_or_momenta: Union[pd.DataFrame, List[pd.DataFrame]], mass_
     """
 
     if mass_assignments is not None:
-        return invariant_mass_fulldf(df_or_momenta, df_or_momenta)
+        return invariant_mass_fulldf(df_or_momenta, mass_assignments)
     else:
         return invariant_mass_4vector(df_or_momenta)
 
