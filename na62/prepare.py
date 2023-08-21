@@ -36,6 +36,7 @@ def import_root_file(filename: str, limit: Union[None, int] = None) -> pd.DataFr
         clean_tracks(data)
 
         compute_derived(data)
+        limit = len(data) # Update with real value - either limit itself, or less if there was not so much data to read
         normalization = sample_normalization(fd, limit)
     return data, normalization
 
