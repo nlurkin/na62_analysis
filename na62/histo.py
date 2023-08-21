@@ -14,7 +14,7 @@ def get_bin_center(bins: np.array) -> np.array:
 def hist_data(df: pd.Series, *,
               bins: Union[int, None] = None, range: Union[int, None] = None,
               errors: Union[str, None] = "normal",
-              label: str = "Data"):
+              label: str = "Data") -> int:
     h, bins = np.histogram(df, bins=bins, range=range)
     if errors == "normal":
         errors = np.sqrt(h)
@@ -22,6 +22,7 @@ def hist_data(df: pd.Series, *,
         errors = None
     plt.errorbar(get_bin_center(bins), h, fmt="k,",
                  yerr=errors, capsize=2, label=label)
+    return len(df)
 
 
 def compute_samples_weights(normalizations_dict: Dict[str, float]):
@@ -44,17 +45,19 @@ def stack_mc(dfs: List[pd.Series], *,
              labels: Union[None, List[str]] = None,
              weights: Union[int, List[int]] = 1,
              ndata: Union[None, int] = None
-             ):
+             ) -> Dict[str, int]:
 
     if isinstance(weights, int):
         weights = [weights]*len(dfs)
 
     hlist = []
-    hweights = []
-    for df, weight in zip(dfs, weights):
+    for df, weight, label in zip(dfs, weights, labels):
         data_factor = ndata / len(df) if ndata else 1
-        hweights.append(np.ones(shape=df.shape)*weight*data_factor)
-        hlist.append(df)
+        hlist.append((df, np.ones(shape=df.shape)*weight*data_factor, label))
 
-    plt.hist(hlist, weights=hweights, bins=bins,
-             range=range, stacked=True, label=labels)
+    hlist = sorted(hlist, key=lambda x: sum(x[1]))
+
+    plt.hist([_[0] for _ in hlist], weights=[_[1] for _ in hlist], bins=bins,
+             range=range, stacked=True, label=[_[2] for _ in hlist])
+
+    return {_[2]: sum(_[1]) for _ in hlist}
