@@ -110,6 +110,15 @@ struct FlatStruct
   GammaStruct clus2;
 };
 
+struct FlatMCStruct
+{
+  TrackStruct fKaon;
+  VertexStruct fVertex;
+  TrackStruct track1;
+  TrackStruct track2;
+  TrackStruct track3;
+};
+
 class export_flat : public NA62Analysis::Analyzer
 {
 public:
@@ -127,19 +136,22 @@ public:
   void EndOfJobUser();
   void DrawPlot();
 protected:
-  void BranchTrack(TrackStruct &ts, int it);
+  void BranchTrack(TTree* tree, TrackStruct &ts, int it);
   void BranchCluster(GammaStruct &ts, int it);
   void FillTrack(DownstreamTrack &t, TrackStruct &ts, float refTime);
+  void FillMCTrack(KinePart *t, TrackStruct &ts);
   void FillCluster(EnergyCluster &c, GammaStruct &ts);
   void Reset();
+  void FillMCTruth();
 
   Int_t bestInTimeVertices(std::vector<SpectrometerTrackVertex> &vtc);
   std::vector<int> goodDSTracks(std::vector<DownstreamTrack> &ds);
   Bool_t autopassSelection(std::vector<SpectrometerTrackVertex> &vertex3, std::vector<DownstreamTrack> &dsTracks, Int_t &goodvtx, Int_t &goodtrack);
   std::vector<int> additionalClusters(std::vector<EnergyCluster> &clusters);
 
-  TTree *myTree;
+  TTree *myTree, *myMCTree;
   FlatStruct flat;
+  FlatMCStruct mcFlat;
   Int_t fEventType; // 1 k3pi, 2 ke3, 3 kmu2, 4 k2pi, 5 kmu3, 6 bckg
   Int_t fRunNumber;
   Int_t fBurstNumber;

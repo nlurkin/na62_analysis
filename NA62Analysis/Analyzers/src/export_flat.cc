@@ -28,27 +28,27 @@ export_flat::export_flat(Core::BaseAnalysis *ba): Analyzer(ba, "export_flat") {
   fDownscaling = 1000;
 }
 
-void export_flat::BranchTrack(TrackStruct &ts, int it){
-  myTree->Branch(TString::Format("track%i_exists", it), &(ts.fExists));
-  myTree->Branch(TString::Format("track%i_has_muv3", it), &(ts.fHasMUV3));
-  myTree->Branch(TString::Format("track%i_muv3_time", it), &(ts.fMUV3Time));
-  myTree->Branch(TString::Format("track%i_rich_hypothesis", it), &(ts.fRICHMLH));
-  myTree->Branch(TString::Format("track%i_rich_radius", it), &(ts.fRICHRadius));
-  myTree->Branch(TString::Format("track%i_rich_nhits", it), &(ts.fRICHNHits));
-  myTree->Branch(TString::Format("track%i_rich_center_x", it), &(ts.fRICHCenterX));
-  myTree->Branch(TString::Format("track%i_rich_center_y", it), &(ts.fRICHCenterY));
-  myTree->Branch(TString::Format("track%i_direction_x", it), &(ts.fDirectionX));
-  myTree->Branch(TString::Format("track%i_direction_y", it), &(ts.fDirectionY));
-  myTree->Branch(TString::Format("track%i_direction_z", it), &(ts.fDirectionZ));
-  myTree->Branch(TString::Format("track%i_direction_am_x", it), &(ts.fDirectionAfterMagnetX));
-  myTree->Branch(TString::Format("track%i_direction_am_y", it), &(ts.fDirectionAfterMagnetY));
-  myTree->Branch(TString::Format("track%i_direction_am_z", it), &(ts.fDirectionAfterMagnetZ));
-  myTree->Branch(TString::Format("track%i_position_am_x", it), &(ts.fPosAfterMagnetX));
-  myTree->Branch(TString::Format("track%i_position_am_y", it), &(ts.fPosAfterMagnetY));
-  myTree->Branch(TString::Format("track%i_momentum_mag", it), &(ts.fMomentumMag));
-  myTree->Branch(TString::Format("track%i_time", it), &(ts.fTime));
-  myTree->Branch(TString::Format("track%i_lkr_energy", it), &(ts.fLKrEnergy));
-  myTree->Branch(TString::Format("track%i_charge", it), &(ts.fCharge));
+void export_flat::BranchTrack(TTree* tree, TrackStruct &ts, int it){
+  tree->Branch(TString::Format("track%i_exists", it), &(ts.fExists));
+  tree->Branch(TString::Format("track%i_has_muv3", it), &(ts.fHasMUV3));
+  tree->Branch(TString::Format("track%i_muv3_time", it), &(ts.fMUV3Time));
+  tree->Branch(TString::Format("track%i_rich_hypothesis", it), &(ts.fRICHMLH));
+  tree->Branch(TString::Format("track%i_rich_radius", it), &(ts.fRICHRadius));
+  tree->Branch(TString::Format("track%i_rich_nhits", it), &(ts.fRICHNHits));
+  tree->Branch(TString::Format("track%i_rich_center_x", it), &(ts.fRICHCenterX));
+  tree->Branch(TString::Format("track%i_rich_center_y", it), &(ts.fRICHCenterY));
+  tree->Branch(TString::Format("track%i_direction_x", it), &(ts.fDirectionX));
+  tree->Branch(TString::Format("track%i_direction_y", it), &(ts.fDirectionY));
+  tree->Branch(TString::Format("track%i_direction_z", it), &(ts.fDirectionZ));
+  tree->Branch(TString::Format("track%i_direction_am_x", it), &(ts.fDirectionAfterMagnetX));
+  tree->Branch(TString::Format("track%i_direction_am_y", it), &(ts.fDirectionAfterMagnetY));
+  tree->Branch(TString::Format("track%i_direction_am_z", it), &(ts.fDirectionAfterMagnetZ));
+  tree->Branch(TString::Format("track%i_position_am_x", it), &(ts.fPosAfterMagnetX));
+  tree->Branch(TString::Format("track%i_position_am_y", it), &(ts.fPosAfterMagnetY));
+  tree->Branch(TString::Format("track%i_momentum_mag", it), &(ts.fMomentumMag));
+  tree->Branch(TString::Format("track%i_time", it), &(ts.fTime));
+  tree->Branch(TString::Format("track%i_lkr_energy", it), &(ts.fLKrEnergy));
+  tree->Branch(TString::Format("track%i_charge", it), &(ts.fCharge));
 }
 
 void export_flat::BranchCluster(GammaStruct &ts, int it){
@@ -76,11 +76,25 @@ void export_flat::InitOutput() {
   myTree->Branch("vtx_x", &(flat.fVertex.fX));
   myTree->Branch("vtx_y", &(flat.fVertex.fY));
   myTree->Branch("vtx_z", &(flat.fVertex.fZ));
-  BranchTrack(flat.track1, 1);
-  BranchTrack(flat.track2, 2);
-  BranchTrack(flat.track3, 3);
+  BranchTrack(myTree, flat.track1, 1);
+  BranchTrack(myTree, flat.track2, 2);
+  BranchTrack(myTree, flat.track3, 3);
   BranchCluster(flat.clus1, 1);
   BranchCluster(flat.clus2, 2);
+
+  if(GetWithMC()){
+    myMCTree = new TTree("NA62MCFlat", "NA62MCFlat");
+    myMCTree->Branch("run", &fRunNumber);
+    myMCTree->Branch("burst", &fBurstNumber);
+    myMCTree->Branch("event_type", &fEventType);
+    myMCTree->Branch("event_time", &fReferenceTime);
+    myMCTree->Branch("vtx_x", &(mcFlat.fVertex.fX));
+    myMCTree->Branch("vtx_y", &(mcFlat.fVertex.fY));
+    myMCTree->Branch("vtx_z", &(mcFlat.fVertex.fZ));
+    BranchTrack(myMCTree, mcFlat.track1, 1);
+    BranchTrack(myMCTree, mcFlat.track2, 2);
+    BranchTrack(myMCTree, mcFlat.track3, 3);
+  }
 }
 
 void export_flat::InitHist() {
@@ -321,6 +335,7 @@ void export_flat::Process(int) {
     FillCluster(clusters[kmu3Pi0.fClustersID.second], flat.clus2);
     myTree->Fill();
   }
+  if(GetWithMC()) FillMCTruth();
 }
 
 void export_flat::FillTrack(DownstreamTrack &t, TrackStruct &ts, float refTime){
@@ -470,6 +485,60 @@ std::vector<int> export_flat::additionalClusters(std::vector<EnergyCluster> &clu
   return goodClusters;
 }
 
+void export_flat::FillMCTruth() {
+  Event *mcevt = GetMCEvent();
+  mcFlat.fKaon.Reset();
+  mcFlat.track1.Reset();
+  mcFlat.track2.Reset();
+  mcFlat.track3.Reset();
+
+  if(mcevt == nullptr)
+    return;
+  EventBoundary *pOriginalEventBoundary = static_cast<EventBoundary *>(mcevt->GetEventBoundary(0));
+  if(pOriginalEventBoundary->GetNKineParts() == 0) {
+    std::cout << user_normal() << "WARNING: Empty MC event!" << std::endl;
+    return;
+  }
+  int iTrack = 0;
+  for(int ikine = pOriginalEventBoundary->GetFirstKinePartIndex();
+      ikine < pOriginalEventBoundary->GetLastKinePartIndex() + 1; ikine++) {
+    KinePart *kp = static_cast<KinePart *>(mcevt->GetKineParts()->At(ikine));
+    if(ikine == pOriginalEventBoundary->GetFirstKinePartIndex() && kp->GetParentIndex() == -1) {
+      FillMCTrack(kp, mcFlat.fKaon);
+      TLorentzVector endpos = kp->GetEndPos();
+      mcFlat.fVertex.fX = endpos.X();
+      mcFlat.fVertex.fY = endpos.Y();
+      mcFlat.fVertex.fZ = endpos.Z();
+      continue;
+    }
+    if(kp->GetParentIndex() != 0 || !kp->GetProdProcessName().Contains("Decay"))
+      continue;  // KinePart not originating from the beam particle
+
+    if(iTrack==0)
+      FillMCTrack(kp, mcFlat.track1);
+    else if(iTrack==1)
+      FillMCTrack(kp, mcFlat.track2);
+    else if(iTrack==2)
+      FillMCTrack(kp, mcFlat.track3);
+
+    ++iTrack;
+  }
+
+  myMCTree->Fill();
+}
+
+void export_flat::FillMCTrack(KinePart *t, TrackStruct &ts){
+  TVector3 mom = t->GetInitialMomentum();
+  ts.fExists = true;
+  ts.fDirectionX = mom.Unit().X();
+  ts.fDirectionY = mom.Unit().Y();
+  ts.fDirectionZ = mom.Unit().Z();
+
+  ts.fMomentumMag = mom.Mag();
+  ts.fTime = t->GetProdPos().T();
+  ts.fCharge = t->GetCharge();
+}
+
 void export_flat::PostProcess() {
 }
 
@@ -481,6 +550,7 @@ void export_flat::EndOfRunUser() {
 
 void export_flat::EndOfJobUser() {
   myTree->Write();
+  if(GetWithMC()) myMCTree->Write();
   SaveAllPlots();
 }
 
