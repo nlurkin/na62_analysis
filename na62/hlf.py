@@ -351,6 +351,43 @@ def select(df: pd.DataFrame, cuts: List[Callable]) -> pd.DataFrame:
     return df.loc[combine_cuts(cuts)]
 
 
+def make_min_max_cut(min_val: Union[None, int], max_val: Union[None, int], *,
+                     which_value: Union[str, None] = None, which_object: Union[None, str] = None,
+                     df_transform: Union[None, Callable] = None, **kwargs
+                     ) -> Callable:
+    """Create a cut on a value. The cut can be applied to a dataframe, or to a series directly.
+
+    Use to implement other cuts. Requires either which_value to be set, or df_transform (exclusive).
+
+    :param min_val: Minimum value that should be kept. If 'None', no minimum is applied
+    :param max_val: Maximum value that should be kept. If 'None', no maximum is applied
+    :param which_value: Name of the variable on which the cut should be applied when a dataframe is passed (exclusive with `df_transform`)
+    :param which_object: If the variable is prefixed by an object name, specify here which object (e.g. 'track1_{which_value}').
+        If not, `None` will apply to the variable itself.
+    :param df_transform: Transformation function to apply to the input dataframe to transform it into the series on which the cut is applied
+        (exclusive with `which_value`). Any parameter to be passed to the function can be passed as `**kwargs`.
+    :return: Callable computing the alignable boolean Series representing the cut
+    """
+
+    if df_transform and which_value:
+        raise ValueError("Cannot specify both df_transform and which_value. They are exclusive.")
+    if not df_transform and not which_value:
+        raise ValueError("Must specify either of df_transform and which_value.")
+
+    if which_object:
+        which_object = _select_object(which_object)
+        transform = f"{which_object}{which_value}"
+    elif df_transform:
+        transform = functools.partial(df_transform, **kwargs)
+
+    def cut(df: Union[pd.DataFrame, pd.Series]) -> pd.Series:
+        serie_cut = _select_series(df, transform)
+        min_range = serie_cut > min_val if min_val else True
+        max_range = serie_cut < max_val if max_val else True
+        return min_range & max_range
+    return cut
+
+
 def identify(df: pd.DataFrame, definitions: Dict[str, List[Callable]]) -> pd.DataFrame:
     '''
     TODO
