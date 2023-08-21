@@ -150,7 +150,7 @@ def _mass_assignment_to_objects(df: pd.DataFrame, mass_assignments: Dict[str, fl
     return objects
 
 
-def invariant_mass(df_or_momenta: Union[pd.DataFrame, List[pd.DataFrame]], mass_assignments: Union[Dict[str, float], None]) -> pd.Series:
+def invariant_mass(df_or_momenta: Union[pd.DataFrame, List[pd.DataFrame]], mass_assignments: Union[Dict[str, float], None] = None) -> pd.Series:
     """
     Compute the invariant mass. This function dispatches to :func:`invariant_mass_4vector` or
     :func:`invariant_mass_fulldf` based on the type of the 'mass_assignments' input.
