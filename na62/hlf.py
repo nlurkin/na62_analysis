@@ -410,13 +410,7 @@ def make_eop_cut(min_eop: Union[float, None], max_eop: Union[float, None], which
     :return: Callable computing the alignable boolean Series representing the cut
     """
 
-    which_track = _select_object(which_track)
-
-    def cut(df: pd.DataFrame) -> pd.Series():
-        min_cond = df[f"{which_track}eop"] > min_eop if min_eop else True
-        max_cond = df[f"{which_track}eop"] < max_eop if max_eop else True
-        return min_cond & max_cond
-    return cut
+    return make_min_max_cut(min_eop, max_eop, which_value="eop", which_object=which_track)
 
 
 def make_rich_cut(rich_hypothesis: Union[str, int],
@@ -474,17 +468,7 @@ def make_momentum_cut(min_p: Union[None, int], max_p: Union[None, int], which_ob
     :return: Callable computing the alignable boolean Series representing the cut
     """
 
-    which_object = _select_object(which_object)
-
-    def cut(df: Union[pd.DataFrame, pd.Series]) -> pd.Series:
-        if isinstance(df, pd.DataFrame):
-            serie_cut = df[f"{which_object}momentum_mag"]
-        else:
-            serie_cut = df
-        min_momentum_range = serie_cut > min_p if min_p else True
-        max_momentum_range = serie_cut < max_p if max_p else True
-        return min_momentum_range & max_momentum_range
-    return cut
+    return make_min_max_cut(min_p, max_p, which_value="momentum_mag", which_object=which_object)
 
 
 def make_total_momentum_cut(min_p: Union[None, int], max_p: Union[None, int] = None) -> Callable:
@@ -496,12 +480,7 @@ def make_total_momentum_cut(min_p: Union[None, int], max_p: Union[None, int] = N
     :return: Callable computing the alignable boolean Series representing the cut
     """
 
-    momentum_condition = make_momentum_cut(min_p, max_p)
-
-    def cut(df: pd.DataFrame) -> pd.Series:
-        p_tot = total_momentum(df)
-        return momentum_condition(p_tot)
-    return cut
+    return make_min_max_cut(min_p, max_p, df_transform=total_momentum)
 
 
 def make_missing_mass_sqr_cut(min_mm2: Union[None, float], max_mm2: Union[None, float], mass_assignments: Dict[str, float]) -> Callable:
@@ -514,25 +493,12 @@ def make_missing_mass_sqr_cut(min_mm2: Union[None, float], max_mm2: Union[None, 
     :return: Callable computing the alignable boolean Series representing the cut
     """
 
-    def cut(df: pd.DataFrame) -> pd.Series:
-        mmass_sqr = missing_mass_sqr(df, mass_assignments)
-
-        min_mmass_sqr = mmass_sqr > min_mm2 if min_mm2 else True
-        max_mmass_sqr = mmass_sqr < max_mm2 if max_mm2 else True
-
-        return min_mmass_sqr & max_mmass_sqr
-    return cut
+    return make_min_max_cut(min_mm2, max_mm2, df_transform=missing_mass_sqr, momenta_or_masses=mass_assignments)
 
 
 def make_invariant_mass_cut(min_mass: Union[None, float], max_mass: Union[None, float], mass_assignments: Dict[str, float]) -> Callable:
-    def cut(df: pd.DataFrame) -> pd.Series:
-        inv_mass = invariant_mass(df, mass_assignments)
 
-        min_inv_mass = inv_mass > min_mass if min_mass else True
-        max_inv_mass = inv_mass < max_mass if max_mass else True
-
-        return min_inv_mass & max_inv_mass
-    return cut
+    return make_min_max_cut(min_mass, max_mass, df_transform=invariant_mass, mass_assignments=mass_assignments)
 
 
 def make_exists_cut(exists: Union[None, List[str]], not_exists: Union[None, List[str]]) -> Callable:
@@ -632,8 +598,17 @@ def ring_radius(p: Union[float, np.array, pd.Series], mass: float) -> Union[floa
 # Internal functions
 ################################################################
 
-def _select_object(which_object: Union[None, str]):
+def _select_object(which_object: Union[None, str]) -> str:
     if which_object is None:
         return ""
     else:
         return f"{which_object}_"
+
+def _select_series(df: Union[pd.DataFrame, pd.Series], transform: Union[Callable, str]) -> pd.Series:
+    if isinstance(df, pd.DataFrame):
+        if isinstance(transform, str):
+            return df[transform]
+        else:
+            return transform(df)
+    else:
+        return df
