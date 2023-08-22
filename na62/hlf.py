@@ -7,6 +7,7 @@ import pandas as pd
 from . import constants
 from .extract import cluster, get_beam, photon_momentum, track
 
+
 ################################################################
 # Three-vector operations
 ################################################################
@@ -370,9 +371,11 @@ def make_min_max_cut(min_val: Union[None, int], max_val: Union[None, int], *,
     """
 
     if df_transform and which_value:
-        raise ValueError("Cannot specify both df_transform and which_value. They are exclusive.")
+        raise ValueError(
+            "Cannot specify both df_transform and which_value. They are exclusive.")
     if not df_transform and not which_value:
-        raise ValueError("Must specify either of df_transform and which_value.")
+        raise ValueError(
+            "Must specify either of df_transform and which_value.")
 
     if which_object:
         which_object = _select_object(which_object)
@@ -545,6 +548,47 @@ def lkr_energy(df: pd.DataFrame) -> pd.Series:
     return t1["lkr_energy"].fillna(0) + t2["lkr_energy"].fillna(0) + t3["lkr_energy"].fillna(0) + c1["lkr_energy"].fillna(0) + c2["lkr_energy"].fillna(0)
 
 
+def lkr_position(obj: pd.DataFrame) -> pd.DataFrame:
+    """Return the position of the input object on LKr. If the input object is a cluster, the cluster itself is returned.
+    If the input object is a track, the track propagation function is used.
+
+    :param obj: Track or cluster dataframe
+    :return: DataFrame containing the "position_x", "position_y" variables
+    """
+    if "position_am_z" in obj:  # Case of a Track
+        return propagate(obj, constants.lkr_position, position_field_name="position_am", direction_field_name="direction_am")
+    else:  # Case of a Cluster
+        return obj
+
+
+def lkr_distance(df: pd.DataFrame, object_1: str, object_2: str) -> pd.Series:
+    """Compute the distance in the X-Y plane on LKr for the two specified objects. If an object is a track,
+    it is first propagated to the LKr position to get the position.
+
+    :param df: Full dataframe
+    :param object_1: Name of the first object (e.g. 'track1')
+    :param object_2: Name of the second object (e.g. 'track2')
+    :return: Series representing the distance between the two objects
+    """
+    object_1 = _select_object_in_df(df, object_1)
+    object_2 = _select_object_in_df(df, object_2)
+
+    object_1 = lkr_position(object_1)
+    object_2 = lkr_position(object_2)
+
+    return xy_distance(object_1, object_2)
+
+
+def xy_distance(object_1: pd.DataFrame, object_2: pd.DataFrame) -> pd.Series:
+    """Compute the distance between two positions in the X-Y plane.
+
+    :param object_1: DataFrame for the first object. Must contain the variables 'position_{x,y}'.
+    :param object_2: DataFrame for the second object. Must contain the variables 'position_{x,y}'.
+    :return: Series representing the distance
+    """
+    return np.sqrt((object_1["position_x"]-object_2["position_x"])**2 + (object_1["position_y"]-object_2["position_y"])**2)
+
+
 def track_eop(df: pd.DataFrame, trackid: int) -> pd.Series:
     """
     Compute the E/p for the specified track
@@ -604,6 +648,7 @@ def _select_object(which_object: Union[None, str]) -> str:
     else:
         return f"{which_object}_"
 
+
 def _select_series(df: Union[pd.DataFrame, pd.Series], transform: Union[Callable, str]) -> pd.Series:
     if isinstance(df, pd.DataFrame):
         if isinstance(transform, str):
@@ -612,3 +657,11 @@ def _select_series(df: Union[pd.DataFrame, pd.Series], transform: Union[Callable
             return transform(df)
     else:
         return df
+
+
+def _select_object_in_df(df, object):
+    if "track" in object:
+        return track(df, int(object.replace("track", "")))
+    elif "cluster" in object:
+        return cluster(df, int(object.replace("cluster", "")))
+    return None
