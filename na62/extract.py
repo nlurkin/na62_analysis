@@ -92,7 +92,7 @@ def all_clusters(df: pd.DataFrame) -> pd.DataFrame:
     c1 = cluster(df, 1)
     c2 = cluster(df, 2)
 
-    return pd.concat([c1.loc[c1["exists"]], c2.loc[c2["exists"]]])
+    return pd.concat([c1.loc[c1["exists"]], c2.loc[c2["exists"]]]).reset_index()
 
 
 def get_beam(df: pd.DataFrame) -> pd.DataFrame:
