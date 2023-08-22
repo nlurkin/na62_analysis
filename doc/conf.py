@@ -11,10 +11,10 @@ sys.path.insert(0, os.path.abspath('..'))
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = 'NA62_UCL'
+project = 'NA62 UCL'
 copyright = '2023, Nicolas Lurkin'
 author = 'Nicolas Lurkin'
-release = 'v0.1'
+release = 'v0.1.0'
 
 
 # -- General configuration ---------------------------------------------------
