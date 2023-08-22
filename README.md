@@ -35,6 +35,15 @@ Please refer to the jupyter documentation for more information on how to use jup
 Otherwise, you may now follow the instructions in the different notebooks.
 
 
+# Code documentation
+The latest version of the complete documentation of the code is automatically compiled. Please run the `download_doc.sh`
+script to download the latest version. Then open the *doc_compiled/index.html* file in your web browser or run
+```
+firefox doc_compiled/index.html &
+```
+to browse the documentation (or use your favourite browser).
+
+
 # TODO
  - [ ] See if I can provide a documentation for the package (list of available functions)
  - [ ] Need to provide a way to access the data
