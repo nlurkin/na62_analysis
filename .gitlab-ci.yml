@@ -45,7 +45,7 @@ before_script:
 
 pages:
   script:
-    - pip install sphinx sphinx-rtd-theme myst-parser numpy matplotlib lmfit
+    - pip install sphinx sphinx-rtd-theme myst-parser
     - cd doc
     - make html
     - mv _build/html/ ../public/
