@@ -127,7 +127,7 @@ class Test_ThreeVector:
             failed = True
 
         try:
-            self.test_return_type_sum(v1)
+            self.test_return_type_sum(v1, v2)
         except (AssertionError, TypeError):
             print(
                 "[ERROR] Sum function does not return the expected data type (pandas.DataFrame expected)")
