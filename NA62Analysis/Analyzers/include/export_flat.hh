@@ -13,6 +13,7 @@ class TGraph;
 class TTree;
 class DownstreamTrack;
 class EnergyCluster;
+class TRecoCedarCandidate;
 
 struct TrackStruct
 {
@@ -145,6 +146,7 @@ protected:
   void FillMCTruth();
 
   Int_t bestInTimeVertices(std::vector<SpectrometerTrackVertex> &vtc);
+  TRecoCedarCandidate* bestKTAGCandidate(Double_t refTime);
   std::vector<int> goodDSTracks(std::vector<DownstreamTrack> &ds);
   Bool_t autopassSelection(std::vector<SpectrometerTrackVertex> &vertex3, std::vector<DownstreamTrack> &dsTracks, Int_t &goodvtx, Int_t &goodtrack);
   std::vector<int> additionalClusters(std::vector<EnergyCluster> &clusters);
@@ -158,6 +160,7 @@ protected:
 
   Int_t fDownscaling;
   Int_t fDSCount;
+  Int_t fEventTime;
   Double_t fReferenceTime;
 };
 #endif

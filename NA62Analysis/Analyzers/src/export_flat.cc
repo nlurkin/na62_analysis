@@ -65,7 +65,8 @@ void export_flat::InitOutput() {
   myTree->Branch("run", &fRunNumber);
   myTree->Branch("burst", &fBurstNumber);
   myTree->Branch("event_type", &fEventType);
-  myTree->Branch("event_time", &fReferenceTime);
+  myTree->Branch("event_time", &fEventTime);
+  myTree->Branch("ReferenceTime", &fReferenceTime);
   myTree->Branch("beam_momentum_mag", &(flat.fBeam.fMomentum));
   myTree->Branch("beam_direction_x", &(flat.fBeam.fDirectionX));
   myTree->Branch("beam_direction_y", &(flat.fBeam.fDirectionY));
@@ -87,10 +88,11 @@ void export_flat::InitOutput() {
     myMCTree->Branch("run", &fRunNumber);
     myMCTree->Branch("burst", &fBurstNumber);
     myMCTree->Branch("event_type", &fEventType);
-    myMCTree->Branch("event_time", &fReferenceTime);
+    myMCTree->Branch("event_time", &fEventTime);
     myMCTree->Branch("vtx_x", &(mcFlat.fVertex.fX));
     myMCTree->Branch("vtx_y", &(mcFlat.fVertex.fY));
     myMCTree->Branch("vtx_z", &(mcFlat.fVertex.fZ));
+    BranchTrack(myMCTree, mcFlat.fKaon, 0);
     BranchTrack(myMCTree, mcFlat.track1, 1);
     BranchTrack(myMCTree, mcFlat.track2, 2);
     BranchTrack(myMCTree, mcFlat.track3, 3);
@@ -130,12 +132,12 @@ void export_flat::Reset() {
 void export_flat::Process(int) {
   fRunNumber = GetRunID();
   fBurstNumber = GetBurstID();
+  fReferenceTime = GetEventHeader()->GetFineTime() * TdcCalib;
+  fEventTime = GetEventHeader()->GetTimeStamp();
 
   std::vector<DownstreamTrack> dsTracks = *GetOutput<std::vector<DownstreamTrack>>("DownstreamTrackBuilder.Output");
   std::vector<SpectrometerTrackVertex> vertices3 = *GetOutput<std::vector<SpectrometerTrackVertex>>("SpectrometerVertexBuilder.Output3");
-  // std::vector<SpectrometerTrackVertex> vertices2 = *GetOutput<std::vector<SpectrometerTrackVertex>>("SpectrometerVertexBuilder.Output2");
 
-  fReferenceTime = GetEventHeader()->GetFineTime() * TdcCalib;
 
   Bool_t k3pi_sel = *GetOutput<Bool_t>("K3piSelection.EventSelected");
   Int_t  k3piVertex = *GetOutput<Int_t>("K3piSelection.VertexID");
@@ -386,23 +388,30 @@ void export_flat::FillCluster(EnergyCluster &c, GammaStruct &ts){
   ts.fTime = c.GetTime();
 }
 
-Int_t export_flat::bestInTimeVertices(std::vector<SpectrometerTrackVertex> &vtc) {
+TRecoCedarCandidate* export_flat::bestKTAGCandidate(Double_t refTime) {
   TRecoCedarEvent *cedar = GetEvent<TRecoCedarEvent>();
   Int_t iBest = -1;
   Double_t dtBest = 9999.;
-  Double_t timeBest = -99.;
   for(Int_t iCand=0; iCand<cedar->GetNCandidates(); ++iCand) {
-    Double_t dt = fabs(cedar->GetCandidate(iCand)->GetTime() - fReferenceTime);
+    Double_t dt = fabs(cedar->GetCandidate(iCand)->GetTime() - refTime);
     if (dt < dtBest && dt < 5){ // At most 5ns from the trigger
       dtBest = dt;
       iBest = iCand;
-      timeBest = cedar->GetCandidate(iCand)->GetTime();
     }
   }
+  if (iBest == -1)
+    return nullptr;
+  return static_cast<TRecoCedarCandidate*>(cedar->GetCandidate(iBest));
+}
+
+Int_t export_flat::bestInTimeVertices(std::vector<SpectrometerTrackVertex> &vtc) {
+  TRecoCedarCandidate *cedar = bestKTAGCandidate(fReferenceTime);
+
+  Double_t timeBest = cedar->GetTime();
 
   std::vector<SpectrometerTrackVertex> ret;
-  iBest = -1;
-  dtBest = 9999.;
+  Int_t iBest = -1;
+  Double_t dtBest = 9999.;
   Int_t iv = 0;
   for(auto vtx : vtc) {
     Double_t dt = fabs(vtx.GetTime() - timeBest);
