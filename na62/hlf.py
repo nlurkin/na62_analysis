@@ -562,7 +562,7 @@ def make_invariant_mass_cut(min_mass: Union[None, float], max_mass: Union[None, 
     return make_min_max_cut(min_mass, max_mass, df_transform=invariant_mass, mass_assignments=mass_assignments)
 
 
-def make_exists_cut(exists: Union[None, List[str]], not_exists: Union[None, List[str]]) -> Callable:
+def make_exists_cut(exists: Union[None, List[str]] = None, not_exists: Union[None, List[str]] = None) -> Callable:
     """
     Create a cut to select only events where some objects (tracks or clusters) exist. The cut can be applied to a full dataframe.
 
@@ -579,9 +579,9 @@ def make_exists_cut(exists: Union[None, List[str]], not_exists: Union[None, List
     def cut(df: pd.DataFrame) -> pd.Series:
         this_cut = pd.Series(True, index=df.index, dtype=bool)
         for name in exists:
-            this_cut &= df[name]
+            this_cut &= df[f"{name}_exists"]
         for name in not_exists:
-            this_cut &= ~df[name]
+            this_cut &= ~df[f"{name}_exists"]
         return this_cut
     return cut
 
@@ -595,7 +595,7 @@ def make_z_vertex_cut(min_z: Union[None, int], max_z: Union[None, int]) -> Calla
     :return: Callable computing the alignable boolean Series representing the cut
     """
 
-    return make_min_max_cut(min_z, max_z, "vtx_z")
+    return make_min_max_cut(min_z, max_z, which_value="vtx_z")
 
 
 def make_lkr_distance_cut(min_d: Union[None, float], max_d: Union[None, float], object_1: str, object_2: str) -> Callable:
