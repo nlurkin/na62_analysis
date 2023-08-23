@@ -377,7 +377,7 @@ def make_min_max_cut(min_val: Union[None, int], max_val: Union[None, int], *,
         raise ValueError(
             "Must specify either of df_transform and which_value.")
 
-    if which_object:
+    if which_value:
         which_object = _select_object(which_object)
         transform = f"{which_object}{which_value}"
     elif df_transform:
