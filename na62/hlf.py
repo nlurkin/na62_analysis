@@ -402,7 +402,7 @@ def select(df: pd.DataFrame, cuts: List[Callable]) -> pd.DataFrame:
     return df.loc[combine_cuts(cuts)]
 
 
-def make_min_max_cut(min_val: Union[None, int], max_val: Union[None, int], *,
+def make_min_max_cut(min_val: Union[None, int, float], max_val: Union[None, int, float], *,
                      which_value: Union[str, None] = None, which_object: Union[None, str] = None,
                      df_transform: Union[None, Callable] = None, **kwargs
                      ) -> Callable:
