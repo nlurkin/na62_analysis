@@ -162,5 +162,6 @@ protected:
   Int_t fDSCount;
   Int_t fEventTime;
   Double_t fReferenceTime;
+  Double_t fKTAGTime;
 };
 #endif

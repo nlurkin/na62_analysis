@@ -127,6 +127,7 @@ void export_flat::Reset() {
   flat.clus1.Reset();
   flat.clus2.Reset();
   flat.fVertex.Reset();
+  fKTAGTime = -999.;
 }
 
 void export_flat::Process(int) {
@@ -241,6 +242,9 @@ void export_flat::Process(int) {
       FillTrack(t1, flat.track1, vertexTime);
       FillTrack(t2, flat.track2, vertexTime);
       FillTrack(t3, flat.track3, vertexTime);
+      TRecoCedarCandidate *ktag = bestKTAGCandidate(vertexTime);
+      if(ktag)
+        fKTAGTime = ktag->GetTime();
     }
     else{ // Necessarily autopassTrack is set
       DownstreamTrack &t1 = dsTracks[autopassTrack];
@@ -250,6 +254,10 @@ void export_flat::Process(int) {
       flat.fVertex.fY = t1.GetBeamAxisVertex().Y();
       flat.fVertex.fZ = t1.GetBeamAxisVertex().Z();
       FillTrack(t1, flat.track1, trackTime);
+      TRecoCedarCandidate *ktag = bestKTAGCandidate(trackTime);
+      if(ktag)
+        fKTAGTime = ktag->GetTime();
+
     }
 
     // Now check presence of additional clusters
@@ -277,6 +285,10 @@ void export_flat::Process(int) {
     FillTrack(t1, flat.track1, vertexTime);
     FillTrack(t2, flat.track2, vertexTime);
     FillTrack(t3, flat.track3, vertexTime);
+    TRecoCedarCandidate *ktag = bestKTAGCandidate(vertexTime);
+    if(ktag)
+      fKTAGTime = ktag->GetTime();
+
     myTree->Fill();
   }
   if(ke3_sel) {
@@ -293,6 +305,9 @@ void export_flat::Process(int) {
     auto clusters = *GetOutput<std::vector<EnergyCluster>>("EnergyClusterBuilder.Output");
     FillCluster(clusters[ke3Pi0.fClustersID.first], flat.clus1);
     FillCluster(clusters[ke3Pi0.fClustersID.second], flat.clus2);
+    TRecoCedarCandidate *ktag = bestKTAGCandidate(trackTime);
+    if(ktag)
+      fKTAGTime = ktag->GetTime();
     myTree->Fill();
   }
   if(kmu2_sel) {
@@ -305,6 +320,9 @@ void export_flat::Process(int) {
     flat.fVertex.fY = t1.GetBeamAxisVertex().Y();
     flat.fVertex.fZ = t1.GetBeamAxisVertex().Z();
     FillTrack(t1, flat.track1, trackTime);
+    TRecoCedarCandidate *ktag = bestKTAGCandidate(trackTime);
+    if(ktag)
+      fKTAGTime = ktag->GetTime();
     myTree->Fill();
   }
   if(k2pi_sel) {
@@ -319,6 +337,9 @@ void export_flat::Process(int) {
     FillTrack(t1, flat.track1, trackTime);
     FillCluster(k2piPi0.fEnergyClusters.first, flat.clus1);
     FillCluster(k2piPi0.fEnergyClusters.second, flat.clus2);
+    TRecoCedarCandidate *ktag = bestKTAGCandidate(trackTime);
+    if(ktag)
+      fKTAGTime = ktag->GetTime();
     myTree->Fill();
   }
   if(kmu3_sel) {
@@ -331,6 +352,9 @@ void export_flat::Process(int) {
     flat.fVertex.fY = t1.GetBeamAxisVertex().Y();
     flat.fVertex.fZ = t1.GetBeamAxisVertex().Z();
     FillTrack(t1, flat.track1, trackTime);
+    TRecoCedarCandidate *ktag = bestKTAGCandidate(trackTime);
+    if(ktag)
+      fKTAGTime = ktag->GetTime();
 
     auto clusters = *GetOutput<std::vector<EnergyCluster>>("EnergyClusterBuilder.Output");
     FillCluster(clusters[kmu3Pi0.fClustersID.first], flat.clus1);
