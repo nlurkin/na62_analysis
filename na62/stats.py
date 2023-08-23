@@ -8,6 +8,13 @@ from matplotlib import pyplot as plt
 
 
 def model_wrapper(models) -> Callable:
+    """Create a model wrapper for the a of models.
+
+    :param models: List of models to use (order matters - from largest contributor to smallest contributor)
+    :return: Wrapper for the specified models
+    """
+
+    # Instantiate the models with proper prefix
     prepared_models = [m(prefix=f"m{i}_") for i, m in enumerate(models)]
 
     def model(h: tuple[np.ndarray, np.ndarray], bins_center: np.ndarray) -> lmfit.model.ModelResult:
