@@ -16,7 +16,7 @@ def gaussian_wrapper(h: tuple[np.ndarray, np.ndarray], bins_center: np.ndarray) 
     """
     gmodel = GaussianModel()
     pars = gmodel.guess(h, x=bins_center)
-    return gmodel.fit(h, pars, x=bins_center, weights=1/(np.sqrt(h)))
+    return gmodel, pars
 
 
 def gaussian2_wrapper(h: tuple[np.ndarray, np.ndarray], bins_center: np.ndarray) -> lmfit.model.ModelResult:
@@ -33,7 +33,7 @@ def gaussian2_wrapper(h: tuple[np.ndarray, np.ndarray], bins_center: np.ndarray)
     # Then widen it (else the fit will converge on two identical Gaussians)
     pars2["g2_sigma"].value *= 5
     pars2["g2_amplitude"].value /= 5
-    return gmodel.fit(h, pars+pars2, x=bins_center, weights=1/(np.sqrt(h)))
+    return gmodel, pars+pars2
 
 
 def perform_fit(data: Union[pd.Series, np.ndarray], *, bins: int,
@@ -79,7 +79,8 @@ def perform_fit(data: Union[pd.Series, np.ndarray], *, bins: int,
     # Performing the fit
     if model_wrapper is None:
         model_wrapper = gaussian_wrapper
-    out = model_wrapper(h, bins_center)
+    model, pars = model_wrapper(h, bins_center)
+    out = model.fit(h, pars, x=bins_center, weights=1/(np.sqrt(h)))
 
     # Drawing if needed
     if ax is not None:
