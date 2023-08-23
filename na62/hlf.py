@@ -550,6 +550,14 @@ def make_missing_mass_sqr_cut(min_mm2: Union[None, float], max_mm2: Union[None, 
 
 
 def make_invariant_mass_cut(min_mass: Union[None, float], max_mass: Union[None, float], mass_assignments: Dict[str, float]) -> Callable:
+    """
+    Create an invariant mass cut. The cut can be applied to a full dataframe.
+
+    :param min_mass: Minimum invariant mass value that should be kept. If 'None', no minimum is applied
+    :param max_mass: Maximum invariant mass value that should be kept. If 'None', no maximum is applied
+    :param mass_assignments: Dictionary of mass assignments. See :func:`invariant_mass_from_fulldf`.
+    :return: Callable computing the alignable boolean Series representing the cut
+    """
 
     return make_min_max_cut(min_mass, max_mass, df_transform=invariant_mass, mass_assignments=mass_assignments)
 
