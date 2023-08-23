@@ -586,6 +586,75 @@ def make_exists_cut(exists: Union[None, List[str]], not_exists: Union[None, List
     return cut
 
 
+def make_z_vertex_cut(min_z: Union[None, int], max_z: Union[None, int]) -> Callable:
+    """
+    Create a Z vertex position cut. The cut can be applied to a full dataframe.
+
+    :param min_z: Minimum vertex Z value that should be kept. If 'None', no minimum is applied
+    :param max_z: Maximum vertex Z value that should be kept. If 'None', no maximum is applied
+    :return: Callable computing the alignable boolean Series representing the cut
+    """
+
+    return make_min_max_cut(min_z, max_z, "vtx_z")
+
+
+def make_lkr_distance_cut(min_d: Union[None, float], max_d: Union[None, float], object_1: str, object_2: str) -> Callable:
+    """
+    Create cut on the distance between two objects on LKr. The cut can be applied to a full dataframe.
+
+    :param min_d: Minimum distance value that should be kept. If 'None', no minimum is applied
+    :param max_d: Maximum distance value that should be kept. If 'None', no maximum is applied
+    :param object_1: The name of the first object (track or cluster) (e.g. 'track1')
+    :param object_2: The name of the first object (track or cluster) (e.g. 'track2')
+    :return: Callable computing the alignable boolean Series representing the cut
+    """
+
+    return make_min_max_cut(min_d, max_d, df_transform=lkr_distance, object_1=object_1, object_2=object_2)
+
+
+def make_energy_cut(min_e: Union[None, float], max_e: Union[None, float], which_object: Union[str, None]) -> Callable:
+    """
+    Create cut on the LKr energy. The cut can be applied to a full dataframe.
+
+    :param min_e: Minimum energy value that should be kept. If 'None', no minimum is applied
+    :param max_e: Maximum energy value that should be kept. If 'None', no maximum is applied
+    :param which_object: Do not specify (None) if the dataframe to which the cut applies is a track or cluster dataframe.
+        If applied to a full dataframe, the name of the object (track or cluster) should be specified (e.g. 'cluster1')
+    :return: Callable computing the alignable boolean Series representing the cut
+    """
+
+    return make_min_max_cut(min_e, max_e, which_value="lkr_energy", which_object=which_object)
+
+
+def make_cda_cut(min_cda: Union[None, float], max_cda: Union[None, float]) -> Callable:
+    """
+    Create cut on the CDA (closest distance of approach) between the beam and the vertex. The cut can be applied to a full dataframe.
+
+    :param min_cda: Minimum CDA value that should be kept. If 'None', no minimum is applied
+    :param max_cda: Maximum CDA value that should be kept. If 'None', no maximum is applied
+    :return: Callable computing the alignable boolean Series representing the cut
+    """
+
+    return make_min_max_cut(min_cda, max_cda, df_transform=beam_vertex_cda)
+
+
+def make_charged_neutral_vertex_cut(min_d: Union[None, int], max_d: Union[None, int], cluster_1: str, cluster_2: str, clusters_invariant_mass: float) -> Callable:
+    """
+    Create cut on the distance between the charged and the neutral vertex. The cut can be applied to a full dataframe.
+
+    :param min_d: Minimum distance value that should be kept. If 'None', no minimum is applied
+    :param max_d: Maximum distance value that should be kept. If 'None', no maximum is applied
+    :param cluster_1: The name of the first cluster (e.g. 'cluster1')
+    :param cluster_2: The name of the first cluster (e.g. 'cluster2')
+    :param clusters_invariant_mass: Assumed invariant mass of the particle having generated the two clusters
+    :return: Callable computing the alignable boolean Series representing the cut
+    """
+
+    return make_min_max_cut(min_d, max_d, df_transform=charged_neutral_distance,
+                            cluster_1=cluster_1, cluster_2=cluster_2,
+                            clusters_invariant_mass=clusters_invariant_mass)
+
+
 ################################################################
 # Other useful functions
 ################################################################
