@@ -431,7 +431,11 @@ TRecoCedarCandidate* export_flat::bestKTAGCandidate(Double_t refTime) {
 Int_t export_flat::bestInTimeVertices(std::vector<SpectrometerTrackVertex> &vtc) {
   TRecoCedarCandidate *cedar = bestKTAGCandidate(fReferenceTime);
 
-  Double_t timeBest = cedar->GetTime();
+  Double_t timeBest;
+  if(cedar)
+    timeBest = cedar->GetTime();
+  else
+    timeBest = fReferenceTime;
 
   std::vector<SpectrometerTrackVertex> ret;
   Int_t iBest = -1;
