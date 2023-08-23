@@ -33,11 +33,7 @@ def compute_samples_weights(normalizations_dict: Dict[str, float]):
         br = constants.kaon_br_map[sample]
         normalized_mc.append(br/normalization)
 
-    # This is the total normalized MC
-    total_mc = np.sum(normalized_mc)
-
-    # Normalize each sample with the total MC
-    return np.array(normalized_mc) / total_mc
+    return np.array(normalized_mc)
 
 
 def stack_mc(dfs: List[pd.Series], *,
@@ -52,12 +48,12 @@ def stack_mc(dfs: List[pd.Series], *,
 
     hlist = []
     for df, weight, label in zip(dfs, weights, labels):
-        data_factor = ndata / len(df) if ndata else 1
-        hlist.append((df, np.ones(shape=df.shape)*weight*data_factor, label))
+        hlist.append((df, np.ones(shape=df.shape)*weight, label))
 
     hlist = sorted(hlist, key=lambda x: sum(x[1]))
+    sum_mc = sum([sum(_[1]) for _ in hlist])
 
-    plt.hist([_[0] for _ in hlist], weights=[_[1] for _ in hlist], bins=bins,
+    plt.hist([_[0] for _ in hlist], weights=[_[1]*ndata/sum_mc for _ in hlist], bins=bins,
              range=range, stacked=True, label=[_[2] for _ in hlist])
 
     return {_[2]: sum(_[1]) for _ in hlist}
