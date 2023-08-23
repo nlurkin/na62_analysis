@@ -18,7 +18,9 @@ def import_root_file(filename: str, limit: Union[None, int] = None) -> pd.DataFr
     with uproot.open(filename) as fd:
         x = fd.get("export_flat/NA62Flat")
         data = x.arrays(x.keys(), library="pd", entry_stop=limit).rename(
-            columns={"beam_momentum": "beam_momentum_mag", "beam_directionx": "beam_direction_x", "beam_directiony": "beam_direction_y", "beam_directionz": "beam_direction_z"})
+            columns={"beam_momentum": "beam_momentum_mag",
+                     "beam_directionx": "beam_direction_x", "beam_directiony": "beam_direction_y", "beam_directionz": "beam_direction_z",
+                     "beam_position_Y": "beam_position_y"})
         data = data.replace([np.inf, -np.inf], np.nan)
         type_dict = {"beam_momentum_mag": np.float64, "beam_direction_x": np.float64,
                     "beam_direction_y": np.float64, "beam_direction_z": np.float64}
