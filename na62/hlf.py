@@ -493,7 +493,7 @@ def make_rich_cut(rich_hypothesis: Union[str, int],
     return cut
 
 
-def make_muv3_cut(has_muv3: bool, which_track: Union[None, str] = None) -> Callable:
+def make_muv3_cut(has_muv3: bool, time_window: float, which_track: Union[None, str] = None) -> Callable:
     """
     Create a cut on the presence of a track MUV3 signal. The cut can be applied either to a full dataframe or to a track dataframe.
 
@@ -506,7 +506,10 @@ def make_muv3_cut(has_muv3: bool, which_track: Union[None, str] = None) -> Calla
     which_track = _select_object(which_track)
 
     def cut(df: pd.DataFrame) -> pd.Series:
-        return df[f"{which_track}has_muv3"] == has_muv3
+        if has_muv3:
+            return (df[f"{which_track}has_muv3"] == has_muv3) & (np.abs(df[f"{which_track}muv3_time"]-df[f"{which_track}time"])<time_window)
+        else:
+            return (df[f"{which_track}has_muv3"] == has_muv3) | (np.abs(df[f"{which_track}muv3_time"]-df[f"{which_track}time"])>time_window)
     return cut
 
 
