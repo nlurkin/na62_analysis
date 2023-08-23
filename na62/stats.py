@@ -42,14 +42,8 @@ def gaussian2_wrapper(h: tuple[np.ndarray, np.ndarray], bins_center: np.ndarray)
     :param bins_center: Histogram bin centers
     :return: Fit result
     """
-    gmodel = GaussianModel() + GaussianModel(prefix="g2_")
-    pars = GaussianModel().guess(h, x=bins_center)
-    # For the parameters of the second Gaussian, start with the same values as the first
-    pars2 = GaussianModel(prefix="g2_").guess(h, x=bins_center)
-    # Then widen it (else the fit will converge on two identical Gaussians)
-    pars2["g2_sigma"].value *= 5
-    pars2["g2_amplitude"].value /= 5
-    return gmodel, pars+pars2
+
+    return model_wrapper([GaussianModel, GaussianModel])(h, bins_center)
 
 
 def perform_fit(data: Union[pd.Series, np.ndarray], *, bins: int,
