@@ -3,7 +3,7 @@ from typing import Callable, Tuple, Union
 import lmfit
 import numpy as np
 import pandas as pd
-from lmfit.models import GaussianModel
+from lmfit.models import GaussianModel, LinearModel
 from matplotlib import pyplot as plt
 
 
@@ -33,6 +33,28 @@ def gaussian_wrapper(h: tuple[np.ndarray, np.ndarray], bins_center: np.ndarray) 
     gmodel = GaussianModel()
     pars = gmodel.guess(h, x=bins_center)
     return gmodel, pars
+
+
+def gaussian_uniform_wrapper(h: tuple[np.ndarray, np.ndarray], bins_center: np.ndarray) -> lmfit.model.ModelResult:
+    """Fit a Gaussian with a uniform distribution
+
+    :param h: Histogram to fit
+    :param bins_center: Histogram bin centers
+    :return: Fit result
+    """
+
+    return model_wrapper([GaussianModel, LinearModel])(h, bins_center)
+
+
+def gaussian2_uniform_wrapper(h: tuple[np.ndarray, np.ndarray], bins_center: np.ndarray) -> lmfit.model.ModelResult:
+    """Fit a Gaussian with a uniform distribution
+
+    :param h: Histogram to fit
+    :param bins_center: Histogram bin centers
+    :return: Fit result
+    """
+
+    return model_wrapper([GaussianModel, GaussianModel, LinearModel])(h, bins_center)
 
 
 def gaussian2_wrapper(h: tuple[np.ndarray, np.ndarray], bins_center: np.ndarray) -> lmfit.model.ModelResult:
