@@ -56,4 +56,4 @@ def stack_mc(dfs: List[pd.Series], *,
     plt.hist([_[0] for _ in hlist], weights=[_[1]*ndata/sum_mc for _ in hlist], bins=bins,
              range=range, stacked=True, label=[_[2] for _ in hlist])
 
-    return {_[2]: sum(_[1]) for _ in hlist}
+    return {_[2]: sum(_[1]*ndata/sum_mc) for _ in hlist}
