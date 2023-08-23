@@ -309,6 +309,56 @@ def propagate(track: pd.DataFrame, z_final: int, position_field_name: str = "pos
     return pd.DataFrame({"position_x": pos_final_x, "position_y": pos_final_y, "position_z": pos_final_z})
 
 
+def beam_vertex_cda(df: pd.DataFrame) -> pd.Series:
+    """
+    Compute the closest distance of approach (CDA) between the beam direction and the vertex.
+
+    :param df: Full dataframe
+    :return: Series representing the CDA
+    """
+    beam = get_beam(df)
+    beam_at_vtx = propagate(beam, df["vtx_z"])
+    return xy_distance(beam_at_vtx, df.rename(columns={"vtx_x": "position_x", "vtx_y": "position_y", "vtx_z": "position_z"}))
+
+
+def neutral_vertex_z(c1: pd.DataFrame, c2: pd.DataFrame, clusters_invariant_mass: float) -> pd.Series:
+    """
+    Compute the Z position of the neutral vertex formed by by two clusters, assuming they
+    issue from a particle with specified invariant mass.
+
+    :param c1: Cluster dataframe
+    :param c2: Cluster dataframe
+    :param clusters_invariant_mass: Assumed invariant mass of the particle having generated the two clusters
+    :return: Series representing the Z position of the neutral vertex
+    """
+
+    clDist2 = xy_distance(c1, c2)**2
+    vtxZ = constants.lkr_position - \
+        np.sqrt(c1["lkr_energy"] * c2["lkr_energy"] *
+                clDist2) / clusters_invariant_mass
+    return vtxZ
+
+
+def charged_neutral_distance(df, cluster_1, cluster_2, clusters_invariant_mass):
+    """
+    Compute the Z difference between a neutral vertex and the charged vertex. The neutral vertex
+    is computed using :func:`neutral_vertex_z`.
+
+    :param df: Full dataframe
+    :param cluster_1: Name of the first cluster to use (e.g. 'cluster1')
+    :param cluster_2: Name of the first cluster to use (e.g. 'cluster2')
+    :param clusters_invariant_mass: Assumed invariant mass of the particle having generated the two clusters
+    :return: Series representing the Z difference
+    """
+
+    cluster_1 = _select_object_in_df(df, cluster_1)
+    cluster_2 = _select_object_in_df(df, cluster_2)
+    neutral_vtx = neutral_vertex_z(
+        cluster_1, cluster_2, clusters_invariant_mass)
+
+    return np.abs(neutral_vtx - df["vtx_z"])
+
+
 ################################################################
 # Function to define and apply cuts
 ################################################################
