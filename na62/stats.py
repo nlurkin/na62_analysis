@@ -1,10 +1,26 @@
-from typing import Tuple, Union, Callable
+from typing import Callable, Tuple, Union
 
 import lmfit
 import numpy as np
 import pandas as pd
 from lmfit.models import GaussianModel
 from matplotlib import pyplot as plt
+
+
+def model_wrapper(models) -> Callable:
+    prepared_models = [m(prefix=f"m{i}_") for i, m in enumerate(models)]
+
+    def model(h: tuple[np.ndarray, np.ndarray], bins_center: np.ndarray) -> lmfit.model.ModelResult:
+        pars = []
+        for m in prepared_models:
+            this_pars = m.guess(h, x=bins_center)
+            # Remove estimated contribution from histogram
+            h = h - m.eval(x=bins_center, params=this_pars)
+            pars.append(this_pars)
+
+        return sum(prepared_models[1:], prepared_models[0]), sum(pars[1:], pars[0])
+
+    return model
 
 
 def gaussian_wrapper(h: tuple[np.ndarray, np.ndarray], bins_center: np.ndarray) -> lmfit.model.ModelResult:
