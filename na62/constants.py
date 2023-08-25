@@ -1,6 +1,7 @@
 # Detector related constants
 lkr_position = 241093
 muv3_position = 246800
+clock_period = 24.951059536 # ns
 
 # Particle properties
 photon_mass = 0
