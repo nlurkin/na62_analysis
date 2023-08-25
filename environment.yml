@@ -12,3 +12,5 @@ dependencies:
   - numpy
   - pytest
   - lmfit
+  - tqdm
+  - ipywidgets
