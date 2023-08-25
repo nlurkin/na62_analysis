@@ -45,13 +45,8 @@ to browse the documentation (or use your favourite browser).
 
 
 # TODO
- - [ ] See if I can provide a documentation for the package (list of available functions)
  - [ ] Need to provide a way to access the data
- - [ ] Commit less MC in the repo
- - [ ] Add a notebook on timing (maybe with MUV3 time). KTAG? See where timing is not enforced in the selection
- - [ ] Add a notebook on resolutions:
-   - [ ] Spectrometer with fit in bin
-   - [ ] LKr looking at E vs P for electrons in ke3
- - [ ] Neutral vertex
+ - [ ] Add KTAG time in timing notebook
  - [ ] Add KTAG time in data structure to check time resolution of spectrometer
  - [ ] Add theoretical propagation through spectrometer magnet
+ - [ ] Resolution notebook needs additional statistics -> Explain
