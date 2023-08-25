@@ -23,7 +23,7 @@ def import_root_file(filename: str, limit: Union[None, int] = None) -> pd.DataFr
                      "beam_position_Y": "beam_position_y"})
         data = data.replace([np.inf, -np.inf], np.nan)
         type_dict = {"beam_momentum_mag": np.float64, "beam_direction_x": np.float64,
-                    "beam_direction_y": np.float64, "beam_direction_z": np.float64}
+                     "beam_direction_y": np.float64, "beam_direction_z": np.float64}
         for trackid in range(1, 4):
             type_dict[f"track{trackid}_momentum_mag"] = np.float64
             type_dict[f"track{trackid}_direction_x"] = np.float64
@@ -38,9 +38,43 @@ def import_root_file(filename: str, limit: Union[None, int] = None) -> pd.DataFr
         clean_tracks(data)
 
         compute_derived(data)
-        limit = len(data) # Update with real value - either limit itself, or less if there was not so much data to read
+        # Update with real value - either limit itself, or less if there was not so much data to read
+        limit = len(data)
         normalization = sample_normalization(fd, limit)
     return data, normalization
+
+
+def import_root_file_mc_truth(filename: str, limit: Union[None, int] = None) -> pd.DataFrame:
+    """Read a ROOT file and import the NA62MCFlat TTree into a pandas DataFrame. Some pre-processing is performed on the dataframe
+    to clean it and pre-compute some derived values.
+
+    :param filename: Path to the ROOT file to load
+    :param limit: Maximum number of events to load. If None, load the complete TTree. (default None)
+    :return: Full dataframe
+    """
+
+    with uproot.open(filename) as fd:
+        x = fd.get("export_flat/NA62MCFlat")
+        data = x.arrays(x.keys(), library="pd", entry_stop=limit)
+        beam_vars = data.filter(like="track0").columns
+        data = data.rename(columns={_: _.replace(
+            "track0", "beam") for _ in beam_vars})
+        data = data.replace([np.inf, -np.inf], np.nan)
+        type_dict = {"beam_momentum_mag": np.float64, "beam_direction_x": np.float64,
+                     "beam_direction_y": np.float64, "beam_direction_z": np.float64}
+        for trackid in range(1, 4):
+            type_dict[f"track{trackid}_momentum_mag"] = np.float64
+            type_dict[f"track{trackid}_direction_x"] = np.float64
+            type_dict[f"track{trackid}_direction_y"] = np.float64
+            type_dict[f"track{trackid}_direction_z"] = np.float64
+            type_dict[f"track{trackid}_direction_am_x"] = np.float64
+            type_dict[f"track{trackid}_direction_am_y"] = np.float64
+            type_dict[f"track{trackid}_direction_am_z"] = np.float64
+
+        data = data.astype(type_dict)
+        clean_tracks(data)
+
+    return data
 
 
 def import_root_files(filenames: list[str], total_limit: Union[None, int] = None, file_limit: Union[None, int] = None) -> pd.DataFrame:
