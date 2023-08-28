@@ -41,6 +41,7 @@ def import_root_file(filename: str, limit: Union[None, int] = None) -> pd.DataFr
         # Update with real value - either limit itself, or less if there was not so much data to read
         limit = len(data)
         normalization = sample_normalization(fd, limit)
+        data.attrs["acceptances"] = pd.Series([limit/normalization if normalization!=0 else np.nan], index=["pre-selection"])
     return data, normalization
 
 
@@ -99,7 +100,10 @@ def import_root_files(filenames: list[str], total_limit: Union[None, int] = None
             total_limit -= len(data_list[-1])
             if total_limit <= 0:
                 break
-    return pd.concat(data_list), total_normalization
+
+    data = pd.concat(data_list)
+    data.attrs["acceptances"] = pd.Series([len(data)/total_normalization if total_normalization!=0 else np.nan], index=["pre-selection"])
+    return data, total_normalization
 
 
 def clean_clusters(df: pd.DataFrame) -> None:
