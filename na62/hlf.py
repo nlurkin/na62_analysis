@@ -1,5 +1,6 @@
 import functools
 import inspect
+from collections.abc import Iterable
 from typing import Callable, Dict, List, Union
 
 import numpy as np
@@ -675,6 +676,20 @@ def make_charged_neutral_vertex_cut(min_d: Union[None, int], max_d: Union[None, 
     return _set_cut_name(make_min_max_cut(min_d, max_d, df_transform=charged_neutral_distance,
                             cluster_1=cluster_1, cluster_2=cluster_2,
                             clusters_invariant_mass=clusters_invariant_mass), locals())
+
+
+def make_event_type_cut(etype_in=None, etype_not_in=None):
+    if etype_in and not isinstance(etype_in, Iterable):
+        etype_in = [etype_in]
+    if etype_not_in and not isinstance(etype_not_in, Iterable):
+        etype_not_in = [etype_not_in]
+
+    def cut(df):
+        in_cond = df["event_type"].isin(etype_in) if etype_in else True
+        out_cond = ~df["event_type"].isin(
+            etype_not_in) if etype_not_in else True
+        return in_cond & out_cond
+    return _set_cut_name(cut, locals())
 
 
 ################################################################
