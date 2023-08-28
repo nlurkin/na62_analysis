@@ -486,7 +486,8 @@ def make_rich_cut(rich_hypothesis: Union[str, int],
 
     if isinstance(rich_hypothesis, str):
         rich_hypothesis = constants.rich_hypothesis_map[rich_hypothesis]
-    momentum_condition = make_momentum_cut(min_p, max_p)
+    momentum_condition = make_momentum_cut(
+        min_p, max_p, which_object=which_track)
     which_track = _select_object(which_track)
 
     def cut(df: pd.DataFrame) -> pd.Series:
