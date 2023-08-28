@@ -411,7 +411,13 @@ def select(df: pd.DataFrame, cuts: List[Callable]) -> pd.DataFrame:
     :return: DataFrame to which the cuts have been applied
     """
 
-    return df.loc[combine_cuts(cuts)]
+    # The acceptance will be added to both the source and target df by the loc. But we want
+    # to keep it only on the target, so save the source value and restore it after the operation
+    if "acceptances" in df.attrs:
+        old_acceptances = df.attrs["acceptances"]
+    new_df = df.loc[combine_cuts(cuts)]
+    df.attrs["acceptances"] = old_acceptances
+    return new_df
 
 
 def make_min_max_cut(min_val: Union[None, int, float], max_val: Union[None, int, float], *,
