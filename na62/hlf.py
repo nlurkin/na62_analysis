@@ -378,7 +378,7 @@ def n(fun: Callable) -> Callable:
     return not_cut
 
 
-def combine_cuts(cuts: List[Callable], booleans: Union[None, List[pd.Series], List[np.array]] = None) -> Callable:
+def combine_cuts(cuts: List[Callable]) -> Callable:
     """
     Combine a list of cuts into a single Callable
 
@@ -394,7 +394,10 @@ def combine_cuts(cuts: List[Callable], booleans: Union[None, List[pd.Series], Li
         for c, cut in zip(all_cuts, cuts):
             cut_name.append(cut.__name__)
             cut_acceptance.append(sum(c)/len(c) if len(c) > 0 else np.nan)
-        df.attrs["acceptances"] = pd.Series(cut_acceptance, index=cut_name)
+        if not "acceptances" in df.attrs:
+            df.attrs["acceptances"] = pd.Series(cut_acceptance, index=cut_name)
+        else:
+            df.attrs["acceptances"] = pd.concat([df.attrs["acceptances"], pd.Series(cut_acceptance, index=cut_name)])
         return functools.reduce(lambda c1, c2: c1 & c2, all_cuts)
     return cut
 
