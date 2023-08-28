@@ -678,16 +678,23 @@ def make_charged_neutral_vertex_cut(min_d: Union[None, int], max_d: Union[None, 
                             clusters_invariant_mass=clusters_invariant_mass), locals())
 
 
-def make_event_type_cut(etype_in=None, etype_not_in=None):
-    if etype_in and not isinstance(etype_in, Iterable):
-        etype_in = [etype_in]
-    if etype_not_in and not isinstance(etype_not_in, Iterable):
-        etype_not_in = [etype_not_in]
+def make_event_type_cut(etype_allowed=None, etype_not_allowed=None):
+    """
+    Create cut on the event_type variable. Can specify event_type values that are allowed and values that are not allowed.
+
+    :param etype_allowed: List allowed values (ignored if None, default)
+    :param etype_not_allowed: List values not allowed (ignored if None, default)
+    :return: Callable computing the alignable boolean Series representing the cut
+    """
+    if etype_allowed and not isinstance(etype_allowed, Iterable):
+        etype_allowed = [etype_allowed]
+    if etype_not_allowed and not isinstance(etype_not_allowed, Iterable):
+        etype_not_allowed = [etype_not_allowed]
 
     def cut(df):
-        in_cond = df["event_type"].isin(etype_in) if etype_in else True
+        in_cond = df["event_type"].isin(etype_allowed) if etype_allowed else True
         out_cond = ~df["event_type"].isin(
-            etype_not_in) if etype_not_in else True
+            etype_not_allowed) if etype_not_allowed else True
         return in_cond & out_cond
     return _set_cut_name(cut, locals())
 
@@ -823,7 +830,7 @@ def _select_series(df: Union[pd.DataFrame, pd.Series], transform: Union[Callable
         return df
 
 
-def _select_object_in_df(df, object):
+def _select_object_in_df(df: pd.DataFrame, object: str):
     if "track" in object:
         return track(df, int(object.replace("track", "")))
     elif "cluster" in object:
