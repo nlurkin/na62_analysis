@@ -387,7 +387,14 @@ def combine_cuts(cuts: List[Callable], booleans: Union[None, List[pd.Series], Li
     """
 
     def cut(df: pd.DataFrame) -> pd.Series:
-        all_cuts = map(lambda cut: cut(df), cuts)
+        all_cuts = list(map(lambda cut: cut(df), cuts))
+
+        cut_acceptance = []
+        cut_name = []
+        for c, cut in zip(all_cuts, cuts):
+            cut_name.append(cut.__name__)
+            cut_acceptance.append(sum(c)/len(c) if len(c) > 0 else np.nan)
+        df.attrs["acceptances"] = pd.Series(cut_acceptance, index=cut_name)
         return functools.reduce(lambda c1, c2: c1 & c2, all_cuts)
     return cut
 
