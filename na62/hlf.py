@@ -1,4 +1,5 @@
 import functools
+import inspect
 from typing import Callable, Dict, List, Union
 
 import numpy as np
@@ -373,6 +374,7 @@ def n(fun: Callable) -> Callable:
 
     def not_cut(df: pd.DataFrame) -> pd.Series:
         return ~fun(df)
+    not_cut.__name__ = f"not_{fun.__name__}"
     return not_cut
 
 
@@ -463,7 +465,7 @@ def make_eop_cut(min_eop: Union[float, None], max_eop: Union[float, None], which
     :return: Callable computing the alignable boolean Series representing the cut
     """
 
-    return make_min_max_cut(min_eop, max_eop, which_value="eop", which_object=which_track)
+    return _set_cut_name(make_min_max_cut(min_eop, max_eop, which_value="eop", which_object=which_track), locals())
 
 
 def make_rich_cut(rich_hypothesis: Union[str, int],
@@ -490,7 +492,7 @@ def make_rich_cut(rich_hypothesis: Union[str, int],
     def cut(df: pd.DataFrame) -> pd.Series:
         hypothesis = df[f"{which_track}rich_hypothesis"] == rich_hypothesis
         return hypothesis & momentum_condition(df)
-    return cut
+    return _set_cut_name(cut, locals())
 
 
 def make_muv3_cut(has_muv3: bool, time_window: float, which_track: Union[None, str] = None) -> Callable:
@@ -507,10 +509,10 @@ def make_muv3_cut(has_muv3: bool, time_window: float, which_track: Union[None, s
 
     def cut(df: pd.DataFrame) -> pd.Series:
         if has_muv3:
-            return (df[f"{which_track}has_muv3"] == has_muv3) & (np.abs(df[f"{which_track}muv3_time"]-df[f"{which_track}time"])<time_window)
+            return (df[f"{which_track}has_muv3"] == has_muv3) & (np.abs(df[f"{which_track}muv3_time"]-df[f"{which_track}time"]) < time_window)
         else:
-            return (df[f"{which_track}has_muv3"] == has_muv3) | (np.abs(df[f"{which_track}muv3_time"]-df[f"{which_track}time"])>time_window)
-    return cut
+            return (df[f"{which_track}has_muv3"] == has_muv3) | (np.abs(df[f"{which_track}muv3_time"]-df[f"{which_track}time"]) > time_window)
+    return _set_cut_name(cut, locals())
 
 
 def make_momentum_cut(min_p: Union[None, int], max_p: Union[None, int], which_object: Union[None, str] = None) -> Callable:
@@ -524,7 +526,7 @@ def make_momentum_cut(min_p: Union[None, int], max_p: Union[None, int], which_ob
     :return: Callable computing the alignable boolean Series representing the cut
     """
 
-    return make_min_max_cut(min_p, max_p, which_value="momentum_mag", which_object=which_object)
+    return _set_cut_name(make_min_max_cut(min_p, max_p, which_value="momentum_mag", which_object=which_object), locals())
 
 
 def make_total_momentum_cut(min_p: Union[None, int], max_p: Union[None, int] = None) -> Callable:
@@ -536,7 +538,7 @@ def make_total_momentum_cut(min_p: Union[None, int], max_p: Union[None, int] = N
     :return: Callable computing the alignable boolean Series representing the cut
     """
 
-    return make_min_max_cut(min_p, max_p, df_transform=total_momentum)
+    return _set_cut_name(make_min_max_cut(min_p, max_p, df_transform=total_momentum), locals())
 
 
 def make_missing_mass_sqr_cut(min_mm2: Union[None, float], max_mm2: Union[None, float], mass_assignments: Dict[str, float]) -> Callable:
@@ -549,7 +551,7 @@ def make_missing_mass_sqr_cut(min_mm2: Union[None, float], max_mm2: Union[None, 
     :return: Callable computing the alignable boolean Series representing the cut
     """
 
-    return make_min_max_cut(min_mm2, max_mm2, df_transform=missing_mass_sqr, momenta_or_masses=mass_assignments)
+    return _set_cut_name(make_min_max_cut(min_mm2, max_mm2, df_transform=missing_mass_sqr, momenta_or_masses=mass_assignments), locals())
 
 
 def make_invariant_mass_cut(min_mass: Union[None, float], max_mass: Union[None, float], mass_assignments: Dict[str, float]) -> Callable:
@@ -562,7 +564,7 @@ def make_invariant_mass_cut(min_mass: Union[None, float], max_mass: Union[None, 
     :return: Callable computing the alignable boolean Series representing the cut
     """
 
-    return make_min_max_cut(min_mass, max_mass, df_transform=invariant_mass, mass_assignments=mass_assignments)
+    return _set_cut_name(make_min_max_cut(min_mass, max_mass, df_transform=invariant_mass, mass_assignments=mass_assignments), locals())
 
 
 def make_exists_cut(exists: Union[None, List[str]] = None, not_exists: Union[None, List[str]] = None) -> Callable:
@@ -586,7 +588,7 @@ def make_exists_cut(exists: Union[None, List[str]] = None, not_exists: Union[Non
         for name in not_exists:
             this_cut &= ~df[f"{name}_exists"]
         return this_cut
-    return cut
+    return _set_cut_name(cut, locals())
 
 
 def make_z_vertex_cut(min_z: Union[None, int], max_z: Union[None, int]) -> Callable:
@@ -598,7 +600,7 @@ def make_z_vertex_cut(min_z: Union[None, int], max_z: Union[None, int]) -> Calla
     :return: Callable computing the alignable boolean Series representing the cut
     """
 
-    return make_min_max_cut(min_z, max_z, which_value="vtx_z")
+    return _set_cut_name(make_min_max_cut(min_z, max_z, which_value="vtx_z"), locals())
 
 
 def make_lkr_distance_cut(min_d: Union[None, float], max_d: Union[None, float], object_1: str, object_2: str) -> Callable:
@@ -612,7 +614,7 @@ def make_lkr_distance_cut(min_d: Union[None, float], max_d: Union[None, float], 
     :return: Callable computing the alignable boolean Series representing the cut
     """
 
-    return make_min_max_cut(min_d, max_d, df_transform=lkr_distance, object_1=object_1, object_2=object_2)
+    return _set_cut_name(make_min_max_cut(min_d, max_d, df_transform=lkr_distance, object_1=object_1, object_2=object_2), locals())
 
 
 def make_energy_cut(min_e: Union[None, float], max_e: Union[None, float], which_object: Union[str, None]) -> Callable:
@@ -626,7 +628,7 @@ def make_energy_cut(min_e: Union[None, float], max_e: Union[None, float], which_
     :return: Callable computing the alignable boolean Series representing the cut
     """
 
-    return make_min_max_cut(min_e, max_e, which_value="lkr_energy", which_object=which_object)
+    return _set_cut_name(make_min_max_cut(min_e, max_e, which_value="lkr_energy", which_object=which_object), locals())
 
 
 def make_cda_cut(min_cda: Union[None, float], max_cda: Union[None, float]) -> Callable:
@@ -638,7 +640,7 @@ def make_cda_cut(min_cda: Union[None, float], max_cda: Union[None, float]) -> Ca
     :return: Callable computing the alignable boolean Series representing the cut
     """
 
-    return make_min_max_cut(min_cda, max_cda, df_transform=beam_vertex_cda)
+    return _set_cut_name(make_min_max_cut(min_cda, max_cda, df_transform=beam_vertex_cda), locals())
 
 
 def make_charged_neutral_vertex_cut(min_d: Union[None, int], max_d: Union[None, int], cluster_1: str, cluster_2: str, clusters_invariant_mass: float) -> Callable:
@@ -653,9 +655,9 @@ def make_charged_neutral_vertex_cut(min_d: Union[None, int], max_d: Union[None, 
     :return: Callable computing the alignable boolean Series representing the cut
     """
 
-    return make_min_max_cut(min_d, max_d, df_transform=charged_neutral_distance,
+    return _set_cut_name(make_min_max_cut(min_d, max_d, df_transform=charged_neutral_distance,
                             cluster_1=cluster_1, cluster_2=cluster_2,
-                            clusters_invariant_mass=clusters_invariant_mass)
+                            clusters_invariant_mass=clusters_invariant_mass), locals())
 
 
 ################################################################
@@ -795,3 +797,10 @@ def _select_object_in_df(df, object):
     elif "cluster" in object:
         return cluster(df, int(object.replace("cluster", "")))
     return None
+
+
+def _set_cut_name(fun: Callable, params: Dict) -> Callable:
+    parent_name = inspect.stack()[1].function
+    params = ", ".join([f"{k}={v}" for k, v in params.items() if k!="cut"])
+    fun.__name__ = f"{parent_name}({params})"
+    return fun
