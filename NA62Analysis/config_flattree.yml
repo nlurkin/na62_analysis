@@ -1,0 +1,38 @@
+---
+mc_type: &mc_def
+  type: mc_noov
+  run_number: 9001
+
+task: flat_tree
+input:
+  nfiles_per_job: 10
+#  runs:
+     #    - name: 2022D_short_CTRL
+     #      numbers: [12450]
+     #      filter: CTRL
+  samples:
+     # Data sample
+     - name: 2022D
+       version: v3.4.1
+       filter: CTRL
+     # MC samples (no overlay)
+     # Can choose overlaid samples by changing the type to "mc" instead of "mc_noov"
+     # But the notebooks and data format are not ready for that
+     - name: k3pi
+       <<: *mc_def
+     - name: k2pi
+       <<: *mc_def
+     - name: ke3
+       <<: *mc_def
+     - name: km3
+       <<: *mc_def
+     - name: km2
+       <<: *mc_def
+process:
+  executable: # Full path to `flat_tree` executable
+output:
+  location: /eos/experiment/na62/user/<initial>/<username>/flat_tree # Replace <initial> and <username> by your own
+  what:
+    - outFile.root
+temporary:
+  job_dir: # Path to some temporary AFS directory
