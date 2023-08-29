@@ -23,7 +23,7 @@ def three_vectors_sum(vectors: List[pd.DataFrame]) -> pd.DataFrame:
     """
 
     if len(vectors) == 0:
-        return pd.Series()
+        return pd.DataFrame({"direction_x": [], "direction_y": [], "direction_z": [], "momentum_mag": []})
 
     p = vectors[0]
     x = p["direction_x"]*p["momentum_mag"]
