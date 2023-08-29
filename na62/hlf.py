@@ -66,6 +66,67 @@ def three_vector_invert(vector: pd.DataFrame) -> pd.DataFrame:
     return neg_vector
 
 
+def three_vector_dot_product(v1: pd.DataFrame, v2: pd.DataFrame) -> pd.Series:
+    """
+    Compute the dot product between two vectors.
+
+    :param v1: 3-vector dataframe. The dataframe must contain the variables 'direction_{x,y,z}' and 'momentum_mag'
+    :param v2: 3-vector dataframe. The dataframe must contain the variables 'direction_{x,y,z}' and 'momentum_mag'
+    :return: Series representing the dot product between the two vectors
+    """
+
+    x = v1["direction_x"]*v1["momentum_mag"] * \
+        v2["direction_x"]*v2["momentum_mag"]
+    y = v1["direction_y"]*v1["momentum_mag"] * \
+        v2["direction_y"]*v2["momentum_mag"]
+    z = v1["direction_z"]*v1["momentum_mag"] * \
+        v2["direction_z"]*v2["momentum_mag"]
+
+    return x + y + z
+
+
+def three_vector_cross_product(v1: pd.DataFrame, v2: pd.DataFrame) -> pd.DataFrame:
+    """
+    Compute the cross product between two vectors.
+
+    :param v1: 3-vector dataframe. The dataframe must contain the variables 'direction_{x,y,z}' and 'momentum_mag'
+    :param v2: 3-vector dataframe. The dataframe must contain the variables 'direction_{x,y,z}' and 'momentum_mag'
+    :return: 3-vector dataframe representing the cross product between the input 3-vectors and containing the variables 'direction_{x,y,z}' and 'momentum_mag'
+    """
+    x = v1["direction_y"]*v1["momentum_mag"] + v2["direction_z"]*v2["momentum_mag"] - \
+        v1["direction_z"]*v1["momentum_mag"] + \
+        v2["direction_y"]*v2["momentum_mag"]
+    y = v1["direction_x"]*v1["momentum_mag"] + v2["direction_z"]*v2["momentum_mag"] - \
+        v1["direction_z"]*v1["momentum_mag"] + \
+        v2["direction_x"]*v2["momentum_mag"]
+    z = v1["direction_x"]*v1["momentum_mag"] + v2["direction_y"]*v2["momentum_mag"] - \
+        v1["direction_y"]*v1["momentum_mag"] + \
+        v2["direction_x"]*v2["momentum_mag"]
+
+    mag = np.sqrt(x**2 + y**2 + z**2)
+    x /= mag
+    y /= mag
+    z /= mag
+    return pd.DataFrame({"direction_x": x, "direction_y": y, "direction_z": z, "momentum_mag": mag})
+
+
+def three_vector_transverse(v1: pd.DataFrame, v2: pd.DataFrame) -> pd.Series:
+    """
+    Compute the magnitude of the transverse component of the first vector with respect to the second vector.
+
+    :param v1: 3-vector dataframe. The dataframe must contain the variables 'direction_{x,y,z}' and 'momentum_mag'
+    :param v2: 3-vector dataframe. The dataframe must contain the variables 'direction_{x,y,z}' and 'momentum_mag'
+    :return: Series representing the magnitude of the transverse component.
+    :return: _description_
+    """
+
+    v2_mag = v2["momentum_mag"]**2
+    v1_mag = v1["momentum_mag"]**2
+    prod = three_vector_dot_product(v1, v2)
+    v1_mag = (v1_mag - prod**2/v2_mag).clip(lower=0)
+    return np.sqrt(v1_mag)
+
+
 ################################################################
 # Four-vector operations
 ################################################################
