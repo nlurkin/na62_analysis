@@ -14,13 +14,17 @@ def get_bin_center(bins: np.array) -> np.array:
 def hist_data(df: pd.Series, *,
               bins: Union[int, None] = None, range: Union[int, None] = None,
               errors: Union[str, None] = "normal",
-              label: str = "Data") -> int:
+              label: str = "Data",
+              ax: Union[None, plt.Axes]) -> int:
     h, bins = np.histogram(df, bins=bins, range=range)
     if errors == "normal":
         errors = np.sqrt(h)
     else:
         errors = None
-    plt.errorbar(get_bin_center(bins), h, fmt="k,",
+
+    if ax is None:
+        ax = plt
+    ax.errorbar(get_bin_center(bins), h, fmt="k,",
                  yerr=errors, capsize=2, label=label)
     return len(df)
 
@@ -40,8 +44,8 @@ def stack_mc(dfs: List[pd.Series], *,
              bins: Union[int, None] = None, range: Union[int, None] = None,
              labels: Union[None, List[str]] = None,
              weights: Union[int, List[int]] = 1,
-             ndata: Union[None, int] = None
-             ) -> Dict[str, int]:
+             ndata: Union[None, int] = None,
+             ax: Union[None, plt.Axes]) -> Dict[str, int]:
 
     if isinstance(weights, int):
         weights = [weights]*len(dfs)
@@ -53,7 +57,10 @@ def stack_mc(dfs: List[pd.Series], *,
     hlist = sorted(hlist, key=lambda x: sum(x[1]))
     sum_mc = sum([sum(_[1]) for _ in hlist])
 
-    plt.hist([_[0] for _ in hlist], weights=[_[1]*ndata/sum_mc for _ in hlist], bins=bins,
+    if ax is None:
+        ax = plt
+
+    ax.hist([_[0] for _ in hlist], weights=[_[1]*ndata/sum_mc for _ in hlist], bins=bins,
              range=range, stacked=True, label=[_[2] for _ in hlist])
 
     return {_[2]: sum(_[1]*ndata/sum_mc) for _ in hlist}
