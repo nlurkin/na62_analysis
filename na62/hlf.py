@@ -296,6 +296,12 @@ def total_track_momentum(df: pd.DataFrame) -> pd.Series:
     return three_vector_mag(three_vectors_sum([t1, t2, t3]))
 
 
+def transverse_momentum_beam(df: pd.DataFrame) -> pd.Series:
+    beam = get_beam(df)
+    ptot = total_momentum_vector(df)
+    return three_vector_transverse(ptot, beam)
+
+
 def missing_mass_sqr(df: pd.DataFrame, momenta_or_masses: Union[Dict[str, float], List[pd.DataFrame]]) -> pd.Series:
     """
     Compute the missing mass squared. This function dispatches to :func:`missing_mass_sqr_from_4vector` or
@@ -470,7 +476,8 @@ def combine_cuts(cuts: List[Callable]) -> Callable:
         if not "acceptances" in df.attrs:
             df.attrs["acceptances"] = pd.Series(cut_acceptance, index=cut_name)
         else:
-            df.attrs["acceptances"] = pd.concat([df.attrs["acceptances"], pd.Series(cut_acceptance, index=cut_name)])
+            df.attrs["acceptances"] = pd.concat([df.attrs["acceptances"],
+                                                 pd.Series(cut_acceptance, index=cut_name)])
         return functools.reduce(lambda c1, c2: c1 & c2, all_cuts)
     return cut
 
@@ -631,6 +638,18 @@ def make_total_momentum_cut(min_p: Union[None, int], max_p: Union[None, int] = N
     return _set_cut_name(make_min_max_cut(min_p, max_p, df_transform=total_momentum), locals())
 
 
+def make_transverse_momentum_cut(min_p: Union[None, int], max_p: Union[None, int] = None) -> Callable:
+    """
+    Create a cut on the transverse momentum with respect to the beam. The cut can be applied to a full dataframe.
+
+    :param min_p: Minimum transverse momentum value that should be kept. If 'None', no minimum is applied
+    :param max_p: Maximum transverse momentum value that should be kept. If 'None', no maximum is applied
+    :return: Callable computing the alignable boolean Series representing the cut
+    """
+
+    return _set_cut_name(make_min_max_cut(min_p, max_p, df_transform=transverse_momentum_beam), locals())
+
+
 def make_missing_mass_sqr_cut(min_mm2: Union[None, float], max_mm2: Union[None, float], mass_assignments: Dict[str, float]) -> Callable:
     """
     Create a missing mass squared cut. The cut can be applied to a full dataframe.
@@ -746,8 +765,8 @@ def make_charged_neutral_vertex_cut(min_d: Union[None, int], max_d: Union[None, 
     """
 
     return _set_cut_name(make_min_max_cut(min_d, max_d, df_transform=charged_neutral_distance,
-                            cluster_1=cluster_1, cluster_2=cluster_2,
-                            clusters_invariant_mass=clusters_invariant_mass), locals())
+                                          cluster_1=cluster_1, cluster_2=cluster_2,
+                                          clusters_invariant_mass=clusters_invariant_mass), locals())
 
 
 def make_event_type_cut(etype_allowed=None, etype_not_allowed=None):
@@ -764,7 +783,8 @@ def make_event_type_cut(etype_allowed=None, etype_not_allowed=None):
         etype_not_allowed = [etype_not_allowed]
 
     def cut(df):
-        in_cond = df["event_type"].isin(etype_allowed) if etype_allowed else True
+        in_cond = df["event_type"].isin(
+            etype_allowed) if etype_allowed else True
         out_cond = ~df["event_type"].isin(
             etype_not_allowed) if etype_not_allowed else True
         return in_cond & out_cond
@@ -912,6 +932,6 @@ def _select_object_in_df(df: pd.DataFrame, object: str):
 
 def _set_cut_name(fun: Callable, params: Dict) -> Callable:
     parent_name = inspect.stack()[1].function
-    params = ", ".join([f"{k}={v}" for k, v in params.items() if k!="cut"])
+    params = ", ".join([f"{k}={v}" for k, v in params.items() if k != "cut"])
     fun.__name__ = f"{parent_name}({params})"
     return fun
