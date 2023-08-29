@@ -66,3 +66,30 @@ def stack_mc(dfs: List[pd.Series], *,
              range=range, stacked=True, label=[_[2] for _ in hlist])
 
     return {_[2]: sum(_[1]*ndata/sum_mc) for _ in hlist}
+
+
+def stack_mc_flux(dfs: Dict[str, pd.Series], normalizations: Dict[str, int], *,
+                  bins: Union[int, None] = None, range: Union[int, None] = None,
+                  labels: Union[None, List[str]] = None,
+                  kaon_flux: Union[None, int] = None,
+                  ax: Union[None, plt.Axes]) -> Dict[str, int]:
+
+    if not labels:
+        labels = [None]*len(dfs)
+
+    hlist = []
+    for sample, label in zip(dfs, labels):
+        if label is None:
+            label = sample
+        hlist.append((dfs[sample], np.ones(shape=dfs[sample].shape) *
+                     constants.kaon_br_map[sample]/normalizations[sample], label))
+
+    hlist = sorted(hlist, key=lambda x: sum(x[1]))
+
+    if ax is None:
+        ax = plt
+
+    ax.hist([_[0] for _ in hlist], weights=[_[1]*kaon_flux for _ in hlist], bins=bins,
+             range=range, stacked=True, label=[_[2] for _ in hlist])
+
+    return {_[2]: sum(_[1]*kaon_flux) for _ in hlist}
