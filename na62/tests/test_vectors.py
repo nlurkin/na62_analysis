@@ -15,6 +15,9 @@ class Test_ThreeVector:
     sum_function = hlf.three_vectors_sum
     mag_function = hlf.three_vector_mag
     invert_function = hlf.three_vector_invert
+    cross_prod_function = hlf.three_vector_cross_product
+    dot_prod_function = hlf.three_vector_dot_product
+    transverse_function = hlf.three_vector_transverse
 
     # Functions to generate some input randomly
     @staticmethod
@@ -54,12 +57,30 @@ class Test_ThreeVector:
             "momentum_mag": [9746.595612, 2089.868306, 18351.161160, 10734.296881, 78923.692160, 23976.849705, 65345.755230, 2143.726276, 6434.717278, 51546.666629]})
 
     @pytest.fixture
-    def vector_sum(self, vector1, vector2):
+    def vector_sum(self):
         return pd.DataFrame({
             "direction_x": [0.60445218, 0.66373376, 0.57286913, 0.64398297, 0.42157816, 0.20825984, 0.75285458, 0.49409809, 0.88044839, 0.70334033],
             "direction_y": [0.55179659, 0.39065836, 0.81899179, 0.48974082, 0.55218452, 0.61595781, 0.39146875, 0.82625722, 0.27300523, 0.37574975],
             "direction_z": [0.57459384, 0.63784288, 0.03276302, 0.58774132, 0.71928027, 0.75975247, 0.52911455, 0.2704923, 0.38765807, 0.6034273],
             "momentum_mag": [55733.71152199,  31955.95888169,  18957.22794326,  59592.03196925, 117784.35646802,  52734.29043842,  99537.85438574,  32116.17093987, 20473.60615187,  66986.42759534]})
+
+    @pytest.fixture
+    def vector_dot_product(self):
+        return pd.Series([4.05645263e+08, 5.98907733e+07, 1.10078302e+07, 4.39628338e+08, 2.74293056e+09,
+                          4.82897168e+08, 2.19595411e+09, 5.34316233e+07, 8.66442988e+07, 6.97119805e+08])
+
+    @pytest.fixture
+    def vector_cross_product(self):
+        return pd.DataFrame({
+            "direction_x": [0.30921307, -0.50217114, 0.48587722, -0.03168408, 0.59712135,  0.21604696, 0.35842635,  0.85447343, 0.11106997, 0.38418677],
+            "direction_y": [0.51553858,  0.21130195, 0.34060891,  0.29280877, 0.49413205, -0.57575565, 0.64762253,  0.41559523, 0.74229712, 0.66201392],
+            "direction_z": [0.79912906,  0.83855568, 0.80492788,  0.95564593, 0.63188576,  0.78856144, 0.67239542, -0.31169819, 0.66080137, 0.64353562],
+            "momentum_mag": [14223.59821521, 12230.85545417, 32118.52357655, 28326.05799673, 149368.77466428, 27152.80691744, 124384.66445463, 24306.69685328, 19702.18156765, 78984.80326635]})
+
+    @pytest.fixture
+    def vector_transverse(self):
+        return pd.Series([21628.84774099, 8704.74256384, 486.05644178, 29654.27477528, 30829.91002656,
+                          28889.35654873, 10793.60525193, 17284.42062283, 4812.98014678, 15905.36214084])
 
     def test_sum(self, vector1, vector2, vector_sum):
         ''' Test the sum function. The value provided by the sum_function need to be very close from the known sum '''
@@ -87,6 +108,21 @@ class Test_ThreeVector:
         invert[["direction_x", "direction_y", "direction_z"]] *= -1
         assert ((Test_ThreeVector.invert_function(vector1) == invert).all().all())
 
+    def test_cross_product(self, vector1, vector2, vector_cross_product):
+        ''' Test the cross product function. The value provided by the cross_prod_function need to be very close to the known cross product'''
+        cross_product = Test_ThreeVector.cross_prod_function(vector1, vector2)
+        assert (np.isclose(cross_product, vector_cross_product).all().all())
+
+    def test_dot_product(self, vector1, vector2, vector_dot_product):
+        ''' Test the dot product function. The value provided by the dot_prod_function need to be very close to the known dot product'''
+        dot_product = Test_ThreeVector.dot_prod_function(vector1, vector2)
+        assert (np.isclose(dot_product, vector_dot_product).all())
+
+    def test_transverse(self, vector1, vector2, vector_transverse):
+        ''' Test the transverse function. The value provided by the transverse_function need to be very close to the known transverse component'''
+        transverse = Test_ThreeVector.transverse_function(vector1, vector2)
+        assert (np.isclose(transverse, vector_transverse).all())
+
     def test_return_type_sum(self, vector1, vector2):
         ''' Test the return type of the sum function.'''
         ret = Test_ThreeVector.sum_function([vector1, vector2])
@@ -101,6 +137,21 @@ class Test_ThreeVector:
         ''' Test the return type of the sum function.'''
         ret = Test_ThreeVector.invert_function(vector1)
         assert (type(ret) == pd.DataFrame)
+
+    def test_return_type_cross_product(self, vector1, vector2):
+        ''' Test the return type of the cross_prod function.'''
+        ret = Test_ThreeVector.cross_prod_function(vector1, vector2)
+        assert (type(ret) == pd.DataFrame)
+
+    def test_return_type_dot_product(self, vector1, vector2):
+        ''' Test the return type of the dot_prod function.'''
+        ret = Test_ThreeVector.dot_prod_function(vector1, vector2)
+        assert (type(ret) == pd.Series)
+
+    def test_return_type_transverse(self, vector1, vector2):
+        ''' Test the return type of the transverse function.'''
+        ret = Test_ThreeVector.transverse_function(vector1, vector2)
+        assert (type(ret) == pd.Series)
 
     def run_tests(self, *, sum_function, mag_function, invert_function):
         ''' Run the tests manually, comparing the results on randomly generated vectors against the library functions '''
