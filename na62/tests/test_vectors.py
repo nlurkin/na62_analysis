@@ -153,17 +153,24 @@ class Test_ThreeVector:
         ret = Test_ThreeVector.transverse_function(vector1, vector2)
         assert (type(ret) == pd.Series)
 
-    def run_tests(self, *, sum_function, mag_function, invert_function):
+    def run_tests(self, *, sum_function, mag_function, invert_function, cross_product_function, dot_product_function, transverse_function):
         ''' Run the tests manually, comparing the results on randomly generated vectors against the library functions '''
         Test_ThreeVector.sum_function = sum_function
         Test_ThreeVector.mag_function = mag_function
         Test_ThreeVector.invert_function = invert_function
+        Test_ThreeVector.cross_prod_function = cross_product_function
+        Test_ThreeVector.dot_prod_function = dot_product_function
+        Test_ThreeVector.transverse_function = transverse_function
 
         v1 = Test_ThreeVector.generate_vector()
         v2 = Test_ThreeVector.generate_vector()
         vsum = hlf.three_vectors_sum([v1, v2])
+        vcross = hlf.three_vector_cross_product(v1, v2)
+        vdot = hlf.three_vector_dot_product(v1, v2)
+        vtransverse = hlf.three_vector_transverse(v1, v2)
         failed = False
 
+        # Test magnitude function
         try:
             self.test_return_type_magnitude(v1)
         except (AssertionError, TypeError):
@@ -177,6 +184,7 @@ class Test_ThreeVector:
             print("[ERROR] Magnitude function does not return the expected values")
             failed = True
 
+        # Test sum function
         try:
             self.test_return_type_sum(v1, v2)
         except (AssertionError, TypeError):
@@ -196,6 +204,7 @@ class Test_ThreeVector:
             print("[ERROR] Sum function does not return a unit direction vector")
             failed = True
 
+        # Test invert function
         try:
             self.test_return_type_invert(v1)
         except (AssertionError, TypeError):
@@ -208,6 +217,51 @@ class Test_ThreeVector:
         except (AssertionError, TypeError):
             print(
                 "[ERROR] Invertion function does not return a vector whose coordinates are inverted")
+            failed = True
+
+        # Test cross product function
+        try:
+            self.test_return_type_cross_product(v1, v2)
+        except (AssertionError, TypeError):
+            print(
+                "[ERROR] Cross product function does not return the expected data type (pandas.DataFrame expected)")
+            failed = True
+
+        try:
+            self.test_cross_product(v1, v2, vcross)
+        except (AssertionError, TypeError):
+            print(
+                "[ERROR] Cross product function does not return the expected values")
+            failed = True
+
+        # Test dot product function
+        try:
+            self.test_return_type_dot_product(v1, v2)
+        except (AssertionError, TypeError):
+            print(
+                "[ERROR] Dot product function does not return the expected data type (pandas.Series expected)")
+            failed = True
+
+        try:
+            self.test_dot_product(v1, v2, vdot)
+        except (AssertionError, TypeError):
+            print(
+                "[ERROR] Dot product function does not return the expected values")
+            failed = True
+
+        # Test transverse function
+        try:
+            self.test_return_type_transverse(v1, v2)
+        except (AssertionError, TypeError):
+            print(
+                "[ERROR] Transverse function does not return the expected data type (pandas.Series expected)")
+            failed = True
+
+        try:
+            self.test_transverse(v1, v2, vtransverse)
+        except (AssertionError, TypeError):
+            print(
+                "[ERROR] Transverse function does not return the expected values")
             failed = True
 
         if not failed:
