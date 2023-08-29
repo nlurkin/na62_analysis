@@ -40,7 +40,7 @@ def compute_samples_weights(normalizations_dict: Dict[str, float]):
     return np.array(normalized_mc)
 
 
-def stack_mc(dfs: List[pd.Series], *,
+def stack_mc_scale(dfs: List[pd.Series], *,
              bins: Union[int, None] = None, range: Union[int, None] = None,
              labels: Union[None, List[str]] = None,
              weights: Union[int, List[int]] = 1,
