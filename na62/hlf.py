@@ -263,12 +263,23 @@ def total_momentum(df: pd.DataFrame) -> pd.Series:
     :return: Series representing the total momentum magnitude
     """
 
+    return three_vector_mag(total_momentum_vector(df))
+
+
+def total_momentum_vector(df: pd.DataFrame) -> pd.Series:
+    """
+    Compute the total momentum vector over all existing tracks and clusters in each event.
+
+    :param df: Full dataframe
+    :return: Series representing the total momentum magnitude
+    """
+
     t1 = track(df, 1).fillna(0)
     t2 = track(df, 2).fillna(0)
     t3 = track(df, 3).fillna(0)
     c1 = photon_momentum(df, 1).fillna(0)
     c2 = photon_momentum(df, 2).fillna(0)
-    return three_vector_mag(three_vectors_sum([t1, t2, t3, c1, c2]))
+    return three_vectors_sum([t1, t2, t3, c1, c2])
 
 
 def total_track_momentum(df: pd.DataFrame) -> pd.Series:
