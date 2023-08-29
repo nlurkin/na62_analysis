@@ -49,6 +49,8 @@ def stack_mc(dfs: List[pd.Series], *,
 
     if isinstance(weights, int):
         weights = [weights]*len(dfs)
+    if not labels:
+        labels = [None]*len(dfs)
 
     hlist = []
     for df, weight, label in zip(dfs, weights, labels):
