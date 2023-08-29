@@ -15,7 +15,7 @@ def hist_data(df: pd.Series, *,
               bins: Union[int, None] = None, range: Union[int, None] = None,
               errors: Union[str, None] = "normal",
               label: str = "Data",
-              ax: Union[None, plt.Axes]) -> int:
+              ax: Union[None, plt.Axes] = None) -> int:
     h, bins = np.histogram(df, bins=bins, range=range)
     if errors == "normal":
         errors = np.sqrt(h)
@@ -45,7 +45,7 @@ def stack_mc_scale(dfs: List[pd.Series], *,
              labels: Union[None, List[str]] = None,
              weights: Union[int, List[int]] = 1,
              ndata: Union[None, int] = None,
-             ax: Union[None, plt.Axes]) -> Dict[str, int]:
+             ax: Union[None, plt.Axes] = None) -> Dict[str, int]:
 
     if isinstance(weights, int):
         weights = [weights]*len(dfs)
@@ -72,7 +72,7 @@ def stack_mc_flux(dfs: Dict[str, pd.Series], normalizations: Dict[str, int], *,
                   bins: Union[int, None] = None, range: Union[int, None] = None,
                   labels: Union[None, List[str]] = None,
                   kaon_flux: Union[None, int] = None,
-                  ax: Union[None, plt.Axes]) -> Dict[str, int]:
+                  ax: Union[None, plt.Axes] = None) -> Dict[str, int]:
 
     if not labels:
         labels = [None]*len(dfs)
