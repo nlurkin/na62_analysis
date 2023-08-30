@@ -66,13 +66,14 @@ void export_flat::InitOutput() {
   myTree->Branch("burst", &fBurstNumber);
   myTree->Branch("event_type", &fEventType);
   myTree->Branch("event_time", &fEventTime);
-  myTree->Branch("ReferenceTime", &fReferenceTime);
+  myTree->Branch("reference_time", &fReferenceTime);
+  myTree->Branch("ktag_time", &fKTAGTime);
   myTree->Branch("beam_momentum_mag", &(flat.fBeam.fMomentum));
   myTree->Branch("beam_direction_x", &(flat.fBeam.fDirectionX));
   myTree->Branch("beam_direction_y", &(flat.fBeam.fDirectionY));
   myTree->Branch("beam_direction_z", &(flat.fBeam.fDirectionZ));
   myTree->Branch("beam_position_x", &(flat.fBeam.fPosX));
-  myTree->Branch("beam_position_Y", &(flat.fBeam.fPosY));
+  myTree->Branch("beam_position_y", &(flat.fBeam.fPosY));
   myTree->Branch("beam_position_z", &(flat.fBeam.fPosZ));
   myTree->Branch("vtx_x", &(flat.fVertex.fX));
   myTree->Branch("vtx_y", &(flat.fVertex.fY));
