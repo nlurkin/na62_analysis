@@ -557,9 +557,17 @@ def make_min_max_cut(min_val: Union[None, int, float], max_val: Union[None, int,
 
 
 def identify(df: pd.DataFrame, definitions: Dict[str, List[Callable]]) -> pd.DataFrame:
-    '''
-    TODO
-    '''
+    """
+    Provide particle identification for a track dataframe according to the provided definition.
+
+    :param df: Track dataframe to identify
+    :param definitions: Dictionary of PID definitions. For each dictionary item, the key is the particle
+        type and the value is the list of Callable cuts that will be used to positively ID the track
+        as the particle type.
+    :return: New dataframe with a column for each particle type. The boolean value in each column indicates whether
+        the track satisfies the particular particle definition.
+    """
+
     ptype = pd.DataFrame(False, index=df.index,
                          columns=definitions.keys(), dtype=bool)
     for ptype_name in definitions:
