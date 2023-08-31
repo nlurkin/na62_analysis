@@ -1,0 +1,26 @@
+analyzers = export_flat
+preanalyzers = SpectrometerTrackCorrections LKrClusterCorrections GigaTrackerFineCorrections MUV3Inefficiency MCTimeAlignment UpdateGeometry
+exec = flat_tree
+
+libs =
+libsdirs =
+
+includedirs =
+
+# List of systems excluded/included from bad burst checks:
+# all, ANTI0, Cedar, CHANTI, CHOD, DIM, GTK, HAC, IRC, L0Calo, L0CHOD, L0LAV, L0MUV3, L0NewCHOD, L0RICH, L0TALK, L0TP, L1TP, L2EB, LAV, LKr, MUV0, MUV1, MUV2, MUV3, NewCHOD, Processing, RICH, SAC, SAV, Straw, VetoCounter.
+# By default, all systems are checked. Only one of the two options below can be used.
+# System names should be separated by whitespace.
+BadBurstSystemsToCheck = Cedar CHOD NewCHOD GigaTracker L0TP LKr MUV3 Processing Spectrometer RICH
+BadBurstSystemsToIgnore = 
+
+# List of systems excluded/included from bad event checks:
+# all, ANTI0, Cedar, CHANTI, CHOD, GTK, HAC, IRC, L0, L1, LAV, LKr, MUV0, MUV1, MUV2, MUV3, NewCHOD, RICH, SAC, SAV, Straw, VetoCounter.
+# By default, all systems are checked. Only one of the two options below can be used.
+# System names should be separated by whitespace.
+BadEventSystemsToCheck =
+BadEventSystemsToIgnore =
+
+# Hardcoded analyzer parameters if CLI and run-time config are not enough. Syntax is the same as CLI:
+# analyzerName:param=val;param=val&analyzerName:param=val&...
+parameters =
