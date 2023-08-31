@@ -44,6 +44,13 @@ firefox doc_compiled/index.html &
 to browse the documentation (or use your favourite browser).
 
 
+# Data files
+If you have configured git-lfs correctly, you should already have a limited amount of data available in the **data** directory. This is enough for most of the exercises. They contain the data from one full run (12450, chosen at random) and a small MC simulated sample of each of the five main kaon decay modes (about 50 MB worth of events for each channel).
+
+In some of the exercises, and the final one, more statistics than what is available here is required. You will find a more complete sample of data on the [sharepoint of the course](https://uclouvain.sharepoint.com/:f:/s/O365G-LPHYS2233_NA62/ElCQK-vssOxAj-m9S7KcvsQBcpuWZ1Eqq7LliWjW0p4PeA?e=RxtlA3). For those exercises, please download the **Full_DataSample** and place it in the root directory of this project, in a directory named **Full_DataSample**.
+
+*WARNING*: The full data sample is about 21 GB in size. Make sure you have a reliable connection while downloading. In case of troubles, consider downloading each subdirectory separately.
+
 # TODO
  - [ ] Need to provide a way to access the data
  - [ ] Add KTAG time in timing notebook
