@@ -52,8 +52,10 @@ In some of the exercises, and the final one, more statistics than what is availa
 *WARNING*: The full data sample is about 21 GB in size. Make sure you have a reliable connection while downloading. In case of troubles, consider downloading each subdirectory separately.
 
 # TODO
- - [ ] Need to provide a way to access the data
- - [ ] Add KTAG time in timing notebook
- - [ ] Add KTAG time in data structure to check time resolution of spectrometer
  - [ ] Add theoretical propagation through spectrometer magnet
- - [ ] Resolution notebook needs additional statistics -> Explain
+ - [ ] Possible updates in selections. May reduce too much the acceptance ?
+  - [ ] Add more timing cuts: MUV3 done, but KTAG/Event can be done (ktag-event, or track-ktag or track-trigger or track-vertex)
+  - [ ] Add pile-up constraints ? In single track events, no other track within 10 ns?
+  - [ ] Add constraint on reco Pi0
+  - [ ] Add more constraints on track momentum ? (done in some pre-selection but not everywhere and not in current selections)
+ - [ ] Make sure that the cut values are explained (best EoP cuts, best timing cuts, ...)
