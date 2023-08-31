@@ -91,6 +91,7 @@ def import_root_files(filenames: list[str], total_limit: Union[None, int] = None
         curr_limit = min(file_limit, total_limit) if file_limit and total_limit else (
             file_limit or total_limit)
         data, normalization = import_root_file(filename, curr_limit)
+        data.attrs = {} # Remove the acceptance Series, cannot be concatenated later and will be regenerated anyways
         data_list.append(data)
         total_normalization += normalization
         if total_limit:
