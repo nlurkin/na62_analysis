@@ -482,6 +482,23 @@ def combine_cuts(cuts: List[Callable]) -> Callable:
     return cut
 
 
+def remove_cut(selection: List[Callable], cut: Union[Callable, str]) -> List[Callable]:
+    """
+    Return a new list of  selection cut, where the specified cut has been removed.
+
+    :param selection: List of selection cuts
+    :param cut: Cut to remove. This can be either the exact function instance that is in the list, or the name of the cut.
+    :return: New list of selection cuts
+    """
+
+    # If the function is received, extract the name
+    if callable(cut):
+        cut = cut.__name__.split("(")[0].replace("make_", "")
+
+    # Take all selection cuts, except the ones matching "cut"
+    return [c for c in selection if not cut in c.__name__]
+
+
 def select(df: pd.DataFrame, cuts: List[Callable]) -> pd.DataFrame:
     """
     Apply a list of cuts to a dataframe
