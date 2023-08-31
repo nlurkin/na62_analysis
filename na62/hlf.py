@@ -556,6 +556,17 @@ def make_min_max_cut(min_val: Union[None, int, float], max_val: Union[None, int,
     return cut
 
 
+def identify(df: pd.DataFrame, definitions: Dict[str, List[Callable]]) -> pd.DataFrame:
+    '''
+    TODO
+    '''
+    ptype = pd.DataFrame(False, index=df.index,
+                         columns=definitions.keys(), dtype=bool)
+    for ptype_name in definitions:
+        ptype.loc[combine_cuts(definitions[ptype_name])(df), ptype_name] = True
+    return ptype
+
+
 def make_eop_cut(min_eop: Union[float, None], max_eop: Union[float, None], which_track: Union[None, str] = None) -> Callable:
     """
     Create a E/p cut. The cut can be applied either to a full dataframe or to a track dataframe.
