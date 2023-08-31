@@ -439,6 +439,19 @@ def charged_neutral_distance(df, cluster_1, cluster_2, clusters_invariant_mass):
     return np.abs(neutral_vtx - df["vtx_z"])
 
 
+def reference_time_diff(df: pd.DataFrame, which_obj: str, which_reference: str = "reference_time") -> pd.Series:
+    """
+    Compute the difference between the time of an object (track or cluster) and a reference time, which can be specified.
+
+    :param df: Full dataframe
+    :param which_obj: Name of the object from which the time should be taken (e.g. "track1" or "cluster1")
+    :param which_reference: Reference time to use (defaults to "reference_time")
+    :return: Series representing the time difference
+    """
+    object = _select_object_in_df(df, which_obj)
+    return np.abs(object["time"] - df[which_reference])
+
+
 ################################################################
 # Function to define and apply cuts
 ################################################################
@@ -814,6 +827,19 @@ def make_event_type_cut(etype_allowed=None, etype_not_allowed=None):
             etype_not_allowed) if etype_not_allowed else True
         return in_cond & out_cond
     return _set_cut_name(cut, locals())
+
+
+def make_reference_time_cut(min_t: float, max_t: float, which_object: str, which_reference: str):
+    """
+    Create a cut on the time difference between an object and a reference time. The cut can be applied on a full dataframe.
+
+    :param min_t: Minimum time difference value that should be kept. If 'None', no minimum is applied
+    :param max_t: Maximum time difference value that should be kept. If 'None', no maximum is applied
+    :param which_object: The name of the object from which the time is extracted (e.g. "track1")
+    :type which_reference: The name of the reference time to use (e.g. "reference_time", "ktag_time")
+    :return: Callable computing the alignable boolean Series representing the cut
+    """
+    return _set_cut_name(make_min_max_cut(min_t, max_t, df_transform=reference_time_diff, which_obj=which_object, which_reference=which_reference), locals())
 
 
 ################################################################
