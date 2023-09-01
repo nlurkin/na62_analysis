@@ -121,6 +121,7 @@ def _stack_mc_scale(hlist: List[Histogram], *,
              ndata: int = 1,
              ax: Union[None, plt.Axes] = None) -> Dict[str, int]:
 
+    labels = [_[1] for _ in sorted(zip(hlist, labels), key=lambda x: x[0].entries)]
     hlist = sorted(hlist, key=lambda x: x.entries)
     sum_mc = sum([_.entries for _ in hlist])
     sum_mc = 1 if sum_mc==0 else sum_mc
@@ -181,6 +182,9 @@ def _stack_mc_flux(hlist: List[Histogram], normalizations: Dict[str, int], *,
                   labels: Union[None, List[str]] = None,
                   kaon_flux: Union[None, int] = None,
                   ax: Union[None, plt.Axes] = None) -> Dict[str, int]:
+
+    labels = [_[1] for _ in sorted(zip(hlist, labels), key=lambda x: x[0].entries)]
+    hlist = sorted(hlist, key=lambda x: x.entries)
 
     if ax is None:
         ax = plt
