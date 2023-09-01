@@ -7,17 +7,22 @@ import uproot
 from .hlf import track_eop
 
 
-def import_root_file(filename: str, limit: Union[None, int] = None) -> pd.DataFrame:
+def import_root_file(filename: str, limit: Union[None, int] = None, skip_entries: int = 0) -> pd.DataFrame:
     """Read a ROOT file and import the NA62Flat TTree into a pandas DataFrame. Some pre-processing is performed on the dataframe
     to clean it and pre-compute some derived values.
 
     :param filename: Path to the ROOT file to load
     :param limit: Maximum number of events to load. If None, load the complete TTree. (default None)
+    :param skip_entries: Number of entries to skip before starting reading. (default 0)
     :return: Full dataframe
     """
     with uproot.open(filename) as fd:
         x = fd.get("export_flat/NA62Flat")
-        data = x.arrays(x.keys(), library="pd", entry_stop=limit)
+        if x.num_entries <= skip_entries:
+            # Alternative return. None as the df return signals that nothing was read and specifies how many entries were skipped
+            return None, x.num_entries
+        data = x.arrays(x.keys(), library="pd",
+                        entry_stop=skip_entries+limit, entry_start=skip_entries)
         data = data.replace([np.inf, -np.inf], np.nan)
         type_dict = {"beam_momentum_mag": np.float64, "beam_direction_x": np.float64,
                      "beam_direction_y": np.float64, "beam_direction_z": np.float64}
@@ -38,22 +43,29 @@ def import_root_file(filename: str, limit: Union[None, int] = None) -> pd.DataFr
         # Update with real value - either limit itself, or less if there was not so much data to read
         limit = len(data)
         normalization = sample_normalization(fd, limit)
-        data.attrs["acceptances"] = pd.Series([limit/normalization if normalization!=0 else np.nan], index=["pre-selection"])
+        data.attrs["acceptances"] = pd.Series([limit/normalization if normalization != 0 else np.nan],
+                                              index=["pre-selection"])
+        data.attrs["last_entry"] = skip_entries + limit
     return data, normalization
 
 
-def import_root_file_mc_truth(filename: str, limit: Union[None, int] = None) -> pd.DataFrame:
+def import_root_file_mc_truth(filename: str, limit: Union[None, int] = None, skip_entries: int = 0) -> pd.DataFrame:
     """Read a ROOT file and import the NA62MCFlat TTree into a pandas DataFrame. Some pre-processing is performed on the dataframe
     to clean it and pre-compute some derived values.
 
     :param filename: Path to the ROOT file to load
     :param limit: Maximum number of events to load. If None, load the complete TTree. (default None)
+    :param skip_entries: Number of entries to skip before starting reading. (default 0)
     :return: Full dataframe
     """
 
     with uproot.open(filename) as fd:
         x = fd.get("export_flat/NA62MCFlat")
-        data = x.arrays(x.keys(), library="pd", entry_stop=limit)
+        if x.num_entries <= skip_entries:
+            # Alternative return. None as the df return signals that nothing was read and specifies how many entries were skipped
+            return None, x.num_entries
+        data = x.arrays(x.keys(), library="pd",
+                        entry_stop=skip_entries+limit, entry_start=skip_entries)
         beam_vars = data.filter(like="track0").columns
         data = data.rename(columns={_: _.replace(
             "track0", "beam") for _ in beam_vars})
@@ -75,7 +87,9 @@ def import_root_file_mc_truth(filename: str, limit: Union[None, int] = None) -> 
     return data
 
 
-def import_root_files(filenames: list[str], total_limit: Union[None, int] = None, file_limit: Union[None, int] = None) -> pd.DataFrame:
+def import_root_files(filenames: list[str],
+                      total_limit: Union[None, int] = None, file_limit: Union[None, int] = None,
+                      skip_entries: int = 0) -> pd.DataFrame:
     """Read a list of ROOT file and import the NA62Flat TTree into a single, merged, pandas DataFrame. Some pre-processing
     is performed on the dataframe to clean it and pre-compute some derived values.
 
@@ -83,6 +97,7 @@ def import_root_files(filenames: list[str], total_limit: Union[None, int] = None
     :param total_limit: Absolute maximum number of events to load. If None, no limit is applied. (default None)
     :param file_limit: Maximum number of events to load for each file. If None, no limit is applied.
         This can be combined with the 'total_limit' parameter. (default None)
+    :param skip_entries: Number of entries to skip before starting reading. (default 0)
     :return: Full dataframe
     """
     data_list = []
@@ -90,8 +105,19 @@ def import_root_files(filenames: list[str], total_limit: Union[None, int] = None
     for filename in filenames:
         curr_limit = min(file_limit, total_limit) if file_limit and total_limit else (
             file_limit or total_limit)
-        data, normalization = import_root_file(filename, curr_limit)
-        data.attrs = {} # Remove the acceptance Series, cannot be concatenated later and will be regenerated anyways
+        data, normalization = import_root_file(
+            filename, curr_limit, skip_entries)
+        if data is None:
+            # We have not read anything while using skip_entries
+            # Normalization is the number of entries that were actually skipped
+            skip_entries -= normalization
+            continue
+        else:
+            skip_entries = 0
+        # Remove the acceptance Series, cannot be concatenated later and will be regenerated anyways
+        del data.attrs["acceptances"]
+        last_entry = data.attrs["last_entry"]
+        last_file = filename
         data_list.append(data)
         total_normalization += normalization
         if total_limit:
@@ -99,8 +125,13 @@ def import_root_files(filenames: list[str], total_limit: Union[None, int] = None
             if total_limit <= 0:
                 break
 
+    if len(data_list) == 0:
+        return None, None
     data = pd.concat(data_list)
-    data.attrs["acceptances"] = pd.Series([len(data)/total_normalization if total_normalization!=0 else np.nan], index=["pre-selection"])
+    data.attrs["acceptances"] = pd.Series([len(data)/total_normalization if total_normalization != 0 else np.nan],
+                                          index=["pre-selection"])
+    data.attrs["last_entry"] = last_entry
+    data.attrs["last_file"] = last_file
     return data, total_normalization
 
 
