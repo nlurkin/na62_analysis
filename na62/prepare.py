@@ -22,7 +22,8 @@ def import_root_file(filename: str, limit: Union[None, int] = None, skip_entries
             # Alternative return. None as the df return signals that nothing was read and specifies how many entries were skipped
             return None, x.num_entries
         data = x.arrays(x.keys(), library="pd",
-                        entry_stop=skip_entries+limit, entry_start=skip_entries)
+                        entry_stop=None if limit is None else skip_entries+limit,
+                        entry_start=skip_entries)
         data = data.replace([np.inf, -np.inf], np.nan)
         type_dict = {"beam_momentum_mag": np.float64, "beam_direction_x": np.float64,
                      "beam_direction_y": np.float64, "beam_direction_z": np.float64}
@@ -65,7 +66,8 @@ def import_root_file_mc_truth(filename: str, limit: Union[None, int] = None, ski
             # Alternative return. None as the df return signals that nothing was read and specifies how many entries were skipped
             return None, x.num_entries
         data = x.arrays(x.keys(), library="pd",
-                        entry_stop=skip_entries+limit, entry_start=skip_entries)
+                        entry_stop=None if limit is None else skip_entries+limit,
+                        entry_start=skip_entries)
         beam_vars = data.filter(like="track0").columns
         data = data.rename(columns={_: _.replace(
             "track0", "beam") for _ in beam_vars})
