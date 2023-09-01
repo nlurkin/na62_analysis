@@ -12,6 +12,7 @@ class AnalysisObject:
     """
     Object holding the output of an analysis function
     """
+
     def __init__(self, name):
         self.name = name
         self.df = None
@@ -106,7 +107,8 @@ def run_complete_analysis(data_files: List[Union[str, Path]], mc_dict_files: Dic
 
     try:
         # Run the analysis on data
-        data_result = run_analysis_on_sample(data_files, functions, chunk_size, False)
+        data_result = run_analysis_on_sample(
+            data_files, functions, chunk_size, False)
         mc_result_dict = {}
         for mc_sample in mc_dict_files:
             # Run the analysis on each MC sample
@@ -118,3 +120,17 @@ def run_complete_analysis(data_files: List[Union[str, Path]], mc_dict_files: Dic
         traceback.print_exc()
         histo.disable_plotting = False
     return None, None
+
+
+def plot_prepared_histo_scale(data_result, mc_results, object_name, ihisto, **kwargs):
+    ndata = histo._hist_data(data_result[object_name].histograms[ihisto], **kwargs)
+    nmc = histo._stack_mc_scale([mc_results[mc][object_name].histograms[ihisto][0]
+                          for mc in mc_results], labels=[mc for mc in mc_results], ndata=ndata, **kwargs)
+    return ndata, nmc
+
+
+def plot_prepared_histo_flux(data_result, mc_results, normalization_dict, object_name, kaon_flux, ihisto, **kwargs):
+    ndata = histo._hist_data(data_result[object_name].histograms[ihisto], **kwargs)
+    nmc = histo._stack_mc_flux([mc_results[mc][object_name].histograms[ihisto] for mc in mc_results],
+                         normalization_dict, labels=[mc for mc in mc_results], kaon_flux=kaon_flux, **kwargs)
+    return ndata, nmc
