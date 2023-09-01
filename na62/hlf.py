@@ -530,6 +530,22 @@ def select(df: pd.DataFrame, cuts: List[Callable]) -> pd.DataFrame:
     return new_df
 
 
+def select_all(data: pd.DataFrame, mc_dict: Dict[str, pd.DataFrame], selection_conditions: List[Callable]) -> Tuple[pd.DataFrame, Dict[str, pd.DataFrame]]:
+    """
+    Apply a list of selection criterion to the data sample and all provided MC samples.
+
+    :param data: Full dataframe
+    :param mc_dict: Dictionary of Full dataframes. They keys are the MC sample names.
+    :param selection_conditions: List of cuts
+    :return: Tuple of selected events. The first element of the tuple is the selected data events, and the second element is
+        a dictionary of selected MC events (same keys as for the input mc_dict)
+    """
+
+    data_sel = select(data, selection_conditions)
+    mc_dict_sel = {mc_name: select(mc_dict[mc_name], selection_conditions) for mc_name in mc_dict}
+    return data_sel, mc_dict_sel
+
+
 def make_min_max_cut(min_val: Union[None, int, float], max_val: Union[None, int, float], *,
                      which_value: Union[str, None] = None, which_object: Union[None, str] = None,
                      df_transform: Union[None, Callable] = None, **kwargs
