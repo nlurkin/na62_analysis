@@ -1,7 +1,7 @@
 import functools
 import inspect
 from collections.abc import Iterable
-from typing import Callable, Dict, List, Union
+from typing import Callable, Dict, List, Union, Tuple
 
 import numpy as np
 import pandas as pd
