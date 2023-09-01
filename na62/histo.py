@@ -62,7 +62,6 @@ def prepare_hist_data(df: pd.Series, *,
 
 
 def _hist_data(histogram: Histogram, *,
-              bins: Union[int, None] = None, range: Union[int, None] = None,
               errors: Union[str, None] = "normal",
               label: str = "Data",
               ax: Union[None, plt.Axes] = None) -> int:
