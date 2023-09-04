@@ -21,9 +21,15 @@ class AnalysisObject:
         self.numbers = {}
 
     def merge(self, other):
+        def merge_or_list(el, other):
+            if isinstance(el, list):
+                return [merge_or_list(t, o) for t, o in zip(el, other)]
+            else:
+                return el.merge(other)
+
         for k in self.numbers:
             self.numbers[k] += other.numbers[k]
-        merged_histo = [t.merge(o) for t, o in zip(
+        merged_histo = [merge_or_list(t, o) for t, o in zip(
             self.histograms, other.histograms)]
         self.histograms = merged_histo
 
@@ -132,7 +138,8 @@ def run_complete_analysis(data_files: List[Union[str, Path]], mc_dict_files: Dic
     return None, None
 
 
-def plot_prepared_histo_scale(data_result, mc_results, object_name, ihisto, **kwargs):
+def plot_prepared_histo_scale(data_result: AnalysisObject, mc_results: Dict[str, AnalysisObject],
+                              object_name: str, ihisto: int, **kwargs) -> Tuple[int]:
     ndata = histo._hist_data(
         data_result[object_name].histograms[ihisto], **kwargs)
     nmc = histo._stack_mc_scale([mc_results[mc][object_name].histograms[ihisto][0]
@@ -140,7 +147,9 @@ def plot_prepared_histo_scale(data_result, mc_results, object_name, ihisto, **kw
     return ndata, nmc
 
 
-def plot_prepared_histo_flux(data_result, mc_results, normalization_dict, object_name, kaon_flux, ihisto, **kwargs):
+def plot_prepared_histo_flux(data_result: AnalysisObject, mc_results: Dict[str, AnalysisObject],
+                             normalization_dict: Dict[str, float], object_name: str,
+                             kaon_flux: float, ihisto: int, **kwargs) -> Tuple[int]:
     ndata = histo._hist_data(
         data_result[object_name].histograms[ihisto], **kwargs)
     nmc = histo._stack_mc_flux([mc_results[mc][object_name].histograms[ihisto] for mc in mc_results],
