@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import Callable, Dict, Generator, List, Tuple, Union
 
 import pandas as pd
+from tqdm.autonotebook import tqdm
 
 from na62 import histo
 from na62.prepare import import_root_files
@@ -29,7 +30,7 @@ class AnalysisObject:
         return self
 
 
-def load_yield(input_files: List[Union[str, Path]], chunk_size: int) -> Generator[Tuple[pd.DataFrame, int], None, None]:
+def load_yield(input_files: List[Union[str, Path]], chunk_size: int, sample_name: str) -> Generator[Tuple[pd.DataFrame, int], None, None]:
     """
     Generator chunking the input data. Each chunk is yielded as a dataframe and a normalization number
 
@@ -39,22 +40,27 @@ def load_yield(input_files: List[Union[str, Path]], chunk_size: int) -> Generato
     :yield: Tuple with the chunk dataframe, and the chunk normalization
     """
     start = 0
-    while len(input_files) > 0:
-        # Import the next chunk
-        data, normalization = import_root_files(
-            input_files, total_limit=chunk_size, skip_entries=start)
+    total = len(input_files)
+    with tqdm(total=total, desc=f"{sample_name} files processed", leave=True) as t:
+        while len(input_files) > 0:
+            # Import the next chunk
+            data, normalization = import_root_files(
+                input_files, total_limit=chunk_size, skip_entries=start)
 
-        # If no data read, we have completed
-        if data is None or len(data) == 0:
-            break
+            # If no data read, we have completed
+            if data is None or len(data) == 0:
+                break
 
-        # Update the state variables: remove the files already read and the position in the current file
-        input_files = input_files[input_files.index(data.attrs["last_file"]):]
-        start = data.attrs["last_entry"]
-        yield data, normalization
+            # Update the state variables: remove the files already read and the position in the current file
+            processed_files = input_files.index(data.attrs["last_file"])
+            input_files = input_files[processed_files:]
+            start = data.attrs["last_entry"]
+            yield data, normalization
+            t.update(processed_files)
+        t.update(total)
 
 
-def run_analysis_on_sample(input_files: List[Union[str, Path]], functions: List[Callable], chunk_size: int, isMC: bool) -> Dict[str, AnalysisObject]:
+def run_analysis_on_sample(input_files: List[Union[str, Path]], functions: List[Callable], chunk_size: int, isMC: bool, sample_name: str) -> Dict[str, AnalysisObject]:
     """
     Run an analysis on the list of input files. The analysis is run on chunks of data
     and the outputs of each chunks are merged in the output.
@@ -68,7 +74,7 @@ def run_analysis_on_sample(input_files: List[Union[str, Path]], functions: List[
     output_object = None
 
     # Loop over the dataframes provided by the generator
-    for data, normalization in load_yield(input_files, chunk_size):
+    for data, normalization in load_yield(input_files, chunk_size, sample_name):
         # Prepare the origin input
         input = {"origin": AnalysisObject("origin")}
         input["origin"].df = data
@@ -108,12 +114,12 @@ def run_complete_analysis(data_files: List[Union[str, Path]], mc_dict_files: Dic
     try:
         # Run the analysis on data
         data_result = run_analysis_on_sample(
-            data_files, functions, chunk_size, False)
+            data_files, functions, chunk_size, False, "Data")
         mc_result_dict = {}
         for mc_sample in mc_dict_files:
             # Run the analysis on each MC sample
             mc_result_dict[mc_sample] = run_analysis_on_sample(
-                mc_dict_files[mc_sample], functions, chunk_size, True)
+                mc_dict_files[mc_sample], functions, chunk_size, True, mc_sample)
 
         return data_result, mc_result_dict
     except:
@@ -123,14 +129,16 @@ def run_complete_analysis(data_files: List[Union[str, Path]], mc_dict_files: Dic
 
 
 def plot_prepared_histo_scale(data_result, mc_results, object_name, ihisto, **kwargs):
-    ndata = histo._hist_data(data_result[object_name].histograms[ihisto], **kwargs)
+    ndata = histo._hist_data(
+        data_result[object_name].histograms[ihisto], **kwargs)
     nmc = histo._stack_mc_scale([mc_results[mc][object_name].histograms[ihisto][0]
-                          for mc in mc_results], labels=[mc for mc in mc_results], ndata=ndata, **kwargs)
+                                 for mc in mc_results], labels=[mc for mc in mc_results], ndata=ndata, **kwargs)
     return ndata, nmc
 
 
 def plot_prepared_histo_flux(data_result, mc_results, normalization_dict, object_name, kaon_flux, ihisto, **kwargs):
-    ndata = histo._hist_data(data_result[object_name].histograms[ihisto], **kwargs)
+    ndata = histo._hist_data(
+        data_result[object_name].histograms[ihisto], **kwargs)
     nmc = histo._stack_mc_flux([mc_results[mc][object_name].histograms[ihisto] for mc in mc_results],
-                         normalization_dict, labels=[mc for mc in mc_results], kaon_flux=kaon_flux, **kwargs)
+                               normalization_dict, labels=[mc for mc in mc_results], kaon_flux=kaon_flux, **kwargs)
     return ndata, nmc
