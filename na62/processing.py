@@ -86,6 +86,10 @@ def run_analysis_on_sample(input_files: List[Union[str, Path]], functions: List[
             input[new_output.name] = new_output
 
         # Merge the AnalysisObject with the previous one (if already exists)
+        # Also remove the df as it will not be necessary anymore
+        for step in input:
+            del input[step].df
+            input[step].df = None
         if output_object is None:
             output_object = input
         else:
