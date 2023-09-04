@@ -21,9 +21,15 @@ class AnalysisObject:
         self.numbers = {}
 
     def merge(self, other):
+        def merge_or_list(el, other):
+            if isinstance(el, list):
+                return [merge_or_list(t, o) for t, o in zip(el, other)]
+            else:
+                return el.merge(other)
+
         for k in self.numbers:
             self.numbers[k] += other.numbers[k]
-        merged_histo = [t.merge(o) for t, o in zip(
+        merged_histo = [merge_or_list(t, o) for t, o in zip(
             self.histograms, other.histograms)]
         self.histograms = merged_histo
 
