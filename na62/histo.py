@@ -50,7 +50,7 @@ def hist_data(df: pd.Series, *,
     if disable_plotting:
         return h
 
-    return _hist_data(h, bins=bins, range=range, errors=errors, label=label, ax=ax)
+    return _hist_data(h, errors=errors, label=label, ax=ax)
 
 
 def prepare_hist_data(df: pd.Series, *,
@@ -121,6 +121,8 @@ def _stack_mc_scale(hlist: List[Histogram], *,
              ndata: int = 1,
              ax: Union[None, plt.Axes] = None) -> Dict[str, int]:
 
+    if labels is None:
+        labels = [None]*len(hlist)
     labels = [_[1] for _ in sorted(zip(hlist, labels), key=lambda x: x[0].entries)]
     hlist = sorted(hlist, key=lambda x: x.entries)
     sum_mc = sum([_.entries for _ in hlist])
